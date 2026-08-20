@@ -21,6 +21,7 @@ interface DashboardData {
     chatTitle: string | null
     businessName: string | null
     categoryName: string | null
+    receiptImageUrl: string | null
   }[]
 }
 
@@ -73,11 +74,14 @@ function formatRupiah(amount: number | string) {
 
 const rangeLabel = computed(() => data.value?.range?.label ?? 'Ringkasan pengeluaran')
 
-const quickStats = computed(() => [
-  { label: 'Total Pengeluaran', value: formatRupiah(data.value?.summary.totalExpense ?? 0), icon: 'i-lucide-wallet', tint: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300' },
-  { label: 'Rata-rata/hari', value: formatRupiah(data.value?.summary.averagePerDay ?? 0), icon: 'i-lucide-trending-up', tint: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' },
-  { label: 'Total Transaksi', value: `${data.value?.summary.transactionCount ?? 0}`, icon: 'i-lucide-receipt-text', tint: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' }
-])
+const topCategory = computed(() => data.value?.summary.byCategory?.[0])
+
+const incomeShare = computed(() => {
+  const income = data.value?.summary.totalIncome ?? 0
+  const expense = data.value?.summary.totalExpense ?? 0
+  const total = income + expense
+  return total > 0 ? Math.round((income / total) * 100) : 0
+})
 
 const categoryColors = [
   'var(--ui-color-primary-500)',
@@ -145,6 +149,11 @@ function formatDayLabel(date: string) {
 }
 
 const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d) => acc + d.total, 0))
+
+function dateChip(dateStr: string) {
+  const d = new Date(dateStr)
+  return { day: d.getDate(), month: d.toLocaleDateString('id-ID', { month: 'short' }) }
+}
 </script>
 
 <template>
@@ -156,7 +165,7 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
       />
     </template>
 
-    <div class="mb-6 rounded-2xl ring-1 ring-default bg-elevated/40 p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mb-6 rounded-2xl ring-1 ring-default bg-white dark:bg-gray-900 shadow-sm p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div class="flex items-center gap-1.5 flex-wrap">
         <button
           v-for="opt in periodOptions"
@@ -164,7 +173,7 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
           type="button"
           class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer"
           :class="period === opt.value
-            ? 'bg-primary-500 text-white shadow-sm'
+            ? 'bg-linear-to-r from-primary-500 to-rose-500 text-white shadow-sm shadow-primary-500/30'
             : 'text-muted hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-950 dark:hover:text-primary-400'"
           @click="selectPreset(opt.value)"
         >
@@ -193,6 +202,7 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
           size="sm"
           icon="i-lucide-check"
           :disabled="!pendingFrom || !pendingTo"
+          class="bg-linear-to-r from-primary-500 to-rose-500 hover:brightness-105 shadow-sm shadow-primary-500/30"
           @click="applyCustomRange"
         >
           Terapkan
@@ -201,80 +211,111 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
     </div>
 
     <div
-      class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 transition-opacity"
+      class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6 transition-opacity"
       :class="{ 'opacity-60': pending }"
     >
-      <div
-        v-for="stat in quickStats"
-        :key="stat.label"
-        class="rounded-2xl ring-1 ring-default p-4 flex items-center gap-3"
-      >
-        <div
-          class="size-11 rounded-xl flex items-center justify-center shrink-0"
-          :class="stat.tint"
-        >
-          <UIcon
-            :name="stat.icon"
-            class="size-5"
-          />
-        </div>
-        <div class="min-w-0">
-          <p class="text-xs text-muted truncate">
-            {{ stat.label }}
-          </p>
-          <p class="text-base font-semibold truncate">
-            {{ stat.value }}
-          </p>
-        </div>
-      </div>
-    </div>
+      <div class="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Hero: Total Pengeluaran -->
+        <div class="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary-500 via-primary-600 to-rose-600 text-white p-5 shadow-lg shadow-primary-500/30 flex flex-col">
+          <div class="pointer-events-none absolute -top-8 -right-8 size-32 rounded-full bg-white/10 blur-2xl" />
 
-    <div
-      v-if="data?.businesses?.length"
-      class="mb-6"
-    >
-      <p class="text-sm font-medium text-muted mb-3">
-        Per usaha — {{ rangeLabel }}
-      </p>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div
-          v-for="biz in data.businesses"
-          :key="biz.id"
-          class="rounded-2xl ring-1 ring-default p-4"
-        >
-          <div class="flex items-center gap-2 mb-3">
-            <div class="size-8 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center shrink-0">
+          <div class="relative flex items-center justify-between mb-6">
+            <p class="font-semibold">
+              Total Pengeluaran
+            </p>
+            <span class="size-8 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
               <UIcon
-                name="i-lucide-briefcase"
-                class="size-4 text-primary-700 dark:text-primary-300"
+                name="i-lucide-wallet"
+                class="size-4"
+              />
+            </span>
+          </div>
+
+          <p class="font-display relative text-2xl mb-4 truncate">
+            {{ formatRupiah(data?.summary.totalExpense ?? 0) }}
+          </p>
+
+          <div class="relative flex items-center gap-3 flex-wrap text-xs text-white/85 mb-4">
+            <span class="flex items-center gap-1">
+              <UIcon
+                name="i-lucide-calendar"
+                class="size-3.5"
+              />{{ rangeLabel }}
+            </span>
+            <span class="flex items-center gap-1">
+              <UIcon
+                name="i-lucide-receipt-text"
+                class="size-3.5"
+              />{{ data?.summary.transactionCount ?? 0 }} transaksi
+            </span>
+          </div>
+
+          <div
+            v-if="topCategory"
+            class="relative mt-auto"
+          >
+            <div class="flex items-center justify-between text-xs text-white/85 mb-1">
+              <span>Kategori teratas</span>
+              <span>{{ categoryPercent(topCategory.total) }}%</span>
+            </div>
+            <div class="h-1.5 rounded-full bg-white/25 overflow-hidden mb-3">
+              <div
+                class="h-full rounded-full bg-white"
+                :style="{ width: categoryPercent(topCategory.total) + '%' }"
               />
             </div>
-            <p class="font-medium truncate">
-              {{ biz.name }}
+            <span class="inline-flex text-xs font-medium bg-black/15 rounded-full px-3 py-1">
+              {{ topCategory.name }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Secondary: Total Pemasukan -->
+        <div class="rounded-3xl bg-white dark:bg-gray-900 ring-1 ring-default shadow-sm p-5 flex flex-col">
+          <div class="flex items-center justify-between mb-6">
+            <p class="font-semibold text-rose-600 dark:text-rose-400">
+              Total Pemasukan
             </p>
+            <span class="size-8 rounded-lg bg-rose-50 dark:bg-rose-950 flex items-center justify-center shrink-0">
+              <UIcon
+                name="i-lucide-trending-up"
+                class="size-4 text-rose-600 dark:text-rose-400"
+              />
+            </span>
           </div>
-          <div class="flex justify-between text-sm mb-1">
-            <span class="text-muted">Pemasukan</span>
-            <span class="font-medium text-primary-600 dark:text-primary-400">{{ formatRupiah(biz.income) }}</span>
+
+          <p class="font-display text-2xl mb-4 truncate">
+            {{ formatRupiah(data?.summary.totalIncome ?? 0) }}
+          </p>
+
+          <div class="flex items-center gap-3 text-xs text-muted mb-4">
+            <span class="flex items-center gap-1">
+              <UIcon
+                name="i-lucide-calendar"
+                class="size-3.5"
+              />{{ rangeLabel }}
+            </span>
           </div>
-          <div class="flex justify-between text-sm mb-1">
-            <span class="text-muted">Pengeluaran</span>
-            <span class="font-medium text-rose-600 dark:text-rose-400">{{ formatRupiah(biz.expense) }}</span>
-          </div>
-          <div class="flex justify-between text-sm pt-1 mt-1 border-t border-default">
-            <span class="text-muted">Laba</span>
-            <span
-              class="font-semibold"
-              :class="biz.profit >= 0 ? 'text-primary-600 dark:text-primary-400' : 'text-rose-600 dark:text-rose-400'"
-            >{{ formatRupiah(biz.profit) }}</span>
+
+          <div class="mt-auto">
+            <div class="flex items-center justify-between text-xs text-muted mb-1">
+              <span>Pemasukan vs Pengeluaran</span>
+              <span>{{ incomeShare }}%</span>
+            </div>
+            <div class="h-1.5 rounded-full bg-primary-50 dark:bg-primary-950 overflow-hidden mb-3">
+              <div
+                class="h-full rounded-full bg-linear-to-r from-rose-500 to-primary-500"
+                :style="{ width: incomeShare + '%' }"
+              />
+            </div>
+            <span class="inline-flex text-xs font-medium bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 rounded-full px-3 py-1">
+              Rata-rata {{ formatRupiah(data?.summary.averagePerDay ?? 0) }}/hari
+            </span>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Charts: shown from tablet width up -->
-    <div class="hidden sm:grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-      <UCard :ui="{ body: 'pt-2' }">
+      <UCard :ui="{ root: 'rounded-3xl', body: 'pt-2' }">
         <template #header>
           <div class="flex items-center justify-between gap-2">
             <p class="font-medium">
@@ -376,8 +417,116 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
           Belum ada data pada periode ini
         </p>
       </UCard>
+    </div>
 
-      <UCard>
+    <div
+      v-if="data?.businesses?.length"
+      class="mb-6"
+    >
+      <p class="text-sm font-medium text-muted mb-3">
+        Per usaha — {{ rangeLabel }}
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          v-for="biz in data.businesses"
+          :key="biz.id"
+          class="rounded-2xl ring-1 ring-default bg-white dark:bg-gray-900 shadow-sm p-4"
+        >
+          <div class="flex items-center gap-2 mb-3">
+            <div class="size-8 rounded-lg bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center shrink-0 shadow-sm shadow-primary-500/30">
+              <UIcon
+                name="i-lucide-briefcase"
+                class="size-4 text-white"
+              />
+            </div>
+            <p class="font-medium truncate">
+              {{ biz.name }}
+            </p>
+          </div>
+          <div class="flex justify-between text-sm mb-1">
+            <span class="text-muted">Pemasukan</span>
+            <span class="font-medium text-primary-600 dark:text-primary-400">{{ formatRupiah(biz.income) }}</span>
+          </div>
+          <div class="flex justify-between text-sm mb-1">
+            <span class="text-muted">Pengeluaran</span>
+            <span class="font-medium text-rose-600 dark:text-rose-400">{{ formatRupiah(biz.expense) }}</span>
+          </div>
+          <div class="flex justify-between text-sm pt-1 mt-1 border-t border-default">
+            <span class="text-muted">Laba</span>
+            <span
+              class="font-semibold"
+              :class="biz.profit >= 0 ? 'text-primary-600 dark:text-primary-400' : 'text-rose-600 dark:text-rose-400'"
+            >{{ formatRupiah(biz.profit) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
+      <UCard :ui="{ root: 'rounded-3xl xl:col-span-2', header: 'py-3', body: 'p-0 sm:p-0' }">
+        <template #header>
+          <p class="font-medium">
+            Transaksi terbaru
+          </p>
+        </template>
+
+        <div class="divide-y divide-default">
+          <div
+            v-for="row in data?.recent ?? []"
+            :key="row.id"
+            class="flex items-center gap-3 px-4 py-3"
+          >
+            <div class="flex flex-col items-center justify-center rounded-xl bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 size-11 shrink-0 leading-none">
+              <span class="text-sm font-bold">{{ dateChip(row.expenseDate).day }}</span>
+              <span class="text-[10px] uppercase">{{ dateChip(row.expenseDate).month }}</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium truncate">
+                {{ row.description || (row.categoryName ?? 'Transaksi') }}
+              </p>
+              <p class="text-xs text-muted truncate">
+                {{ row.categoryName ?? '—' }} · {{ row.businessName ?? row.chatTitle ?? 'Personal' }}
+              </p>
+            </div>
+            <span
+              class="text-sm font-semibold shrink-0"
+              :class="row.type === 'income' ? 'text-primary-600 dark:text-primary-400' : 'text-rose-600 dark:text-rose-400'"
+            >
+              {{ row.type === 'income' ? '+' : '−' }}{{ formatRupiah(row.amount) }}
+            </span>
+            <ULink
+              v-if="row.receiptImageUrl"
+              :to="row.receiptImageUrl"
+              target="_blank"
+            >
+              <UButton
+                icon="i-lucide-chevron-right"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                square
+              />
+            </ULink>
+            <span
+              v-else
+              class="size-8 flex items-center justify-center text-muted shrink-0"
+            >
+              <UIcon
+                name="i-lucide-chevron-right"
+                class="size-4"
+              />
+            </span>
+          </div>
+          <p
+            v-if="!data?.recent?.length"
+            class="px-4 py-6 text-sm text-muted text-center"
+          >
+            Belum ada transaksi pada periode ini.
+          </p>
+        </div>
+      </UCard>
+
+      <UCard :ui="{ root: 'rounded-3xl' }">
         <template #header>
           <p class="font-medium">
             Pengeluaran per kategori
@@ -425,115 +574,5 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
         </p>
       </UCard>
     </div>
-
-    <UCard :ui="{ header: 'py-3', body: 'p-0 sm:p-0' }">
-      <template #header>
-        <p class="font-medium">
-          Transaksi terbaru
-        </p>
-      </template>
-
-      <!-- Desktop/tablet: full table -->
-      <div class="hidden sm:block">
-        <UTable
-          :data="data?.recent ?? []"
-          :columns="[
-            { accessorKey: 'expenseDate', header: 'Tanggal' },
-            { accessorKey: 'chatTitle', header: 'Chat/Usaha' },
-            { accessorKey: 'categoryName', header: 'Kategori' },
-            { accessorKey: 'description', header: 'Deskripsi' },
-            { accessorKey: 'amount', header: 'Nominal' }
-          ]"
-        >
-          <template #amount-cell="{ row }">
-            <span :class="row.original.type === 'income' ? 'text-primary-600 dark:text-primary-400' : 'text-rose-600 dark:text-rose-400'">
-              {{ row.original.type === 'income' ? '+' : '−' }}{{ formatRupiah(row.original.amount) }}
-            </span>
-          </template>
-          <template #expenseDate-cell="{ row }">
-            {{ new Date(row.original.expenseDate).toLocaleDateString('id-ID') }}
-          </template>
-          <template #chatTitle-cell="{ row }">
-            {{ row.original.businessName ?? row.original.chatTitle ?? 'Personal' }}
-          </template>
-        </UTable>
-      </div>
-
-      <!-- Mobile: stacked cards, no horizontal scroll needed -->
-      <div class="sm:hidden divide-y divide-default">
-        <div
-          v-for="row in data?.recent ?? []"
-          :key="row.id"
-          class="flex flex-col gap-1 px-4 py-3"
-        >
-          <div class="flex items-start justify-between gap-3">
-            <p class="text-sm font-medium truncate">
-              {{ row.description || (row.categoryName ?? 'Transaksi') }}
-            </p>
-            <span
-              class="text-sm font-semibold shrink-0"
-              :class="row.type === 'income' ? 'text-primary-600 dark:text-primary-400' : 'text-rose-600 dark:text-rose-400'"
-            >
-              {{ row.type === 'income' ? '+' : '−' }}{{ formatRupiah(row.amount) }}
-            </span>
-          </div>
-          <div class="flex items-center flex-wrap gap-x-2 gap-y-1 text-xs text-muted">
-            <span>{{ new Date(row.expenseDate).toLocaleDateString('id-ID') }}</span>
-            <span v-if="row.categoryName">· {{ row.categoryName }}</span>
-            <UBadge
-              color="neutral"
-              variant="subtle"
-              size="sm"
-            >
-              {{ row.businessName ?? row.chatTitle ?? 'Personal' }}
-            </UBadge>
-          </div>
-        </div>
-        <p
-          v-if="!data?.recent?.length"
-          class="px-4 py-3 text-sm text-muted"
-        >
-          Belum ada transaksi.
-        </p>
-      </div>
-    </UCard>
-
-    <template #aside>
-      <div class="relative size-36 mx-auto mb-2">
-        <div
-          class="absolute inset-0 rounded-full"
-          :style="{ background: `conic-gradient(var(--ui-color-primary-500) 0% ${categoryPercent(data?.summary.byCategory?.[0]?.total ?? 0)}%, var(--ui-color-primary-100) ${categoryPercent(data?.summary.byCategory?.[0]?.total ?? 0)}% 100%)` }"
-        />
-        <div class="absolute inset-3 rounded-full bg-white dark:bg-gray-900 flex flex-col items-center justify-center text-center px-2">
-          <span class="text-sm font-semibold leading-tight">{{ formatRupiah(data?.summary.totalExpense ?? 0) }}</span>
-          <span class="text-xs text-muted">periode ini</span>
-        </div>
-      </div>
-      <p
-        v-if="data?.summary.byCategory?.[0]"
-        class="text-center text-xs text-muted mb-6"
-      >
-        {{ categoryPercent(data.summary.byCategory[0].total) }}% dari <span class="font-medium text-default">{{ data.summary.byCategory[0].name }}</span>
-      </p>
-
-      <div class="rounded-2xl bg-primary-50 dark:bg-primary-950 p-5 text-center">
-        <div class="text-3xl mb-2">
-          🤖
-        </div>
-        <p class="text-sm font-medium mb-1">
-          Hubungkan bot ke grup usaha
-        </p>
-        <p class="text-xs text-muted mb-4">
-          Invite bot ke grup, lalu ketik /usaha Nama Usaha supaya transaksi grup itu tercatat otomatis ke usaha tersebut.
-        </p>
-        <UButton
-          to="/businesses"
-          block
-          size="sm"
-        >
-          Lihat Usaha
-        </UButton>
-      </div>
-    </template>
   </NuxtLayout>
 </template>

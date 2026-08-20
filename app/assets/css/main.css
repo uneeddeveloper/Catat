@@ -2,9 +2,87 @@
 @import "@nuxt/ui";
 
 @theme static {
-  --font-sans: 'Public Sans', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Lilita One', sans-serif;
 
   --color-app-bg: #FFF4E8;
   --color-app-bg-dark: #1E140A;
+}
+
+.catat-swal-popup {
+  border-radius: 1.75rem;
+  padding-bottom: 1.75rem;
+  font-family: var(--font-sans);
+}
+
+.catat-swal-title {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  letter-spacing: 0.02em;
+  color: #1f2937;
+}
+
+.catat-swal-text {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.catat-swal-popup .swal2-icon.swal2-warning,
+.catat-swal-popup .swal2-icon.swal2-question {
+  border-color: color-mix(in srgb, var(--ui-color-primary-500) 45%, transparent);
+  color: var(--ui-color-primary-500);
+}
+
+.catat-swal-btn {
+  border: none;
+  border-radius: 9999px;
+  padding: 0.65rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.1s ease, background-color 0.15s ease;
+}
+
+.catat-swal-btn:active {
+  transform: scale(0.97);
+}
+
+.catat-swal-btn-danger {
+  background-image: linear-gradient(to right, var(--color-rose-500), var(--ui-color-primary-500));
+  color: white;
+  box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--color-rose-500) 55%, transparent);
+}
+
+.catat-swal-btn-danger:hover {
+  filter: brightness(1.06);
+}
+
+.catat-swal-btn-ghost {
+  background: transparent;
+  color: #6b7280;
+}
+
+.catat-swal-btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.dark .catat-swal-popup {
+  background: #111827;
+}
+
+.dark .catat-swal-title {
+  color: #f3f4f6;
+}
+
+.dark .catat-swal-text {
+  color: #9ca3af;
+}
+
+.dark .catat-swal-btn-ghost {
+  color: #9ca3af;
+}
+
+.dark .catat-swal-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 

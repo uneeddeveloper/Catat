@@ -1,24 +1,56 @@
 <script setup lang="ts">
 defineProps<{ title: string, subtitle?: string }>()
 
-const { user, clear } = useUserSession()
+const searchQuery = ref('')
 
-const profileItems = computed(() => [[
-  { label: user.value?.name ?? 'Admin', slot: 'account' as const, disabled: true }
-], [
-  { label: 'Keluar', icon: 'i-lucide-log-out', color: 'error' as const, onSelect: logout }
-]])
-
-async function logout() {
-  await clear()
-  await navigateTo('/login')
+function submitSearch() {
+  if (!searchQuery.value.trim()) return
+  navigateTo({ path: '/transactions', query: { search: searchQuery.value.trim() } })
 }
+
+const quickCreateItems = [[
+  { label: 'Tambah Usaha', icon: 'i-lucide-briefcase', to: '/businesses' },
+  { label: 'Tambah Kategori', icon: 'i-lucide-tag', to: '/categories' },
+  { label: 'Tambah Admin', icon: 'i-lucide-user-plus', to: '/settings' }
+]]
 </script>
 
 <template>
-  <div class="flex items-center justify-between gap-3 md:gap-4">
-    <div class="min-w-0 flex-1">
-      <h1 class="text-lg md:text-xl font-semibold truncate">
+  <div class="flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <label class="flex-1 flex items-center gap-2 rounded-full bg-white dark:bg-gray-900 ring-1 ring-default shadow-sm px-4 py-2.5 min-w-0 focus-within:ring-primary-500 transition-colors">
+        <UIcon
+          name="i-lucide-search"
+          class="size-4 text-primary-500 shrink-0"
+        />
+        <input
+          v-model="searchQuery"
+          type="search"
+          placeholder="Cari transaksi, deskripsi..."
+          class="flex-1 min-w-0 bg-transparent outline-none text-sm placeholder:text-muted"
+          @keyup.enter="submitSearch"
+        >
+      </label>
+
+      <UDropdownMenu :items="quickCreateItems">
+        <UButton
+          icon="i-lucide-plus"
+          square
+          class="rounded-full bg-linear-to-br from-primary-500 to-rose-500 hover:brightness-105 shadow-sm shadow-primary-500/30"
+        />
+      </UDropdownMenu>
+
+      <UButton
+        icon="i-lucide-bell"
+        color="neutral"
+        variant="soft"
+        square
+        class="rounded-full hover:text-primary-500"
+      />
+    </div>
+
+    <div class="min-w-0">
+      <h1 class="font-display text-lg md:text-xl tracking-wide truncate">
         {{ title }}
       </h1>
       <p
@@ -27,52 +59,6 @@ async function logout() {
       >
         {{ subtitle }}
       </p>
-    </div>
-
-    <div class="flex items-center gap-3 shrink-0">
-      <slot name="actions" />
-      <UButton
-        icon="i-lucide-bell"
-        color="neutral"
-        variant="ghost"
-        square
-      />
-
-      <!-- Profile: top-right, click to reveal logout -->
-      <UDropdownMenu
-        :items="profileItems"
-        :content="{ side: 'bottom', align: 'end' }"
-      >
-        <button
-          type="button"
-          class="flex items-center gap-2 shrink-0 rounded-full pl-2 border-l border-default hover:bg-elevated transition-colors"
-        >
-          <div class="size-9 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-medium text-sm shrink-0">
-            {{ (user?.name ?? '?').charAt(0).toUpperCase() }}
-          </div>
-          <div class="hidden sm:block leading-tight text-left">
-            <p class="text-xs text-muted">
-              Halo,
-            </p>
-            <span class="text-sm font-medium">{{ user?.name }}</span>
-          </div>
-          <UIcon
-            name="i-lucide-chevron-down"
-            class="hidden sm:block size-4 text-muted"
-          />
-        </button>
-
-        <template #account>
-          <div class="text-left">
-            <p class="font-medium truncate">
-              {{ user?.name }}
-            </p>
-            <p class="text-xs text-muted truncate">
-              {{ user?.email }}
-            </p>
-          </div>
-        </template>
-      </UDropdownMenu>
     </div>
   </div>
 </template>

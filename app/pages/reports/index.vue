@@ -87,10 +87,10 @@ function download(format: 'xlsx' | 'pdf') {
       <UCard>
         <template #header>
           <div class="flex items-center gap-2">
-            <div class="size-8 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center shrink-0">
+            <div class="size-8 rounded-lg bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center shrink-0 shadow-sm shadow-primary-500/30">
               <UIcon
                 name="i-lucide-sliders-horizontal"
-                class="size-4 text-primary-700 dark:text-primary-300"
+                class="size-4 text-white"
               />
             </div>
             <p class="font-medium">
@@ -169,7 +169,7 @@ function download(format: 'xlsx' | 'pdf') {
           class="group text-left rounded-2xl ring-1 ring-default p-5 hover:ring-primary-500 dark:hover:ring-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950 transition-colors"
           @click="download('xlsx')"
         >
-          <div class="size-11 rounded-xl bg-primary-100 dark:bg-primary-900 flex items-center justify-center mb-3 group-hover:bg-primary-500 transition-colors">
+          <div class="size-11 rounded-xl bg-primary-100 dark:bg-primary-900 flex items-center justify-center mb-3 group-hover:bg-linear-to-br group-hover:from-primary-500 group-hover:to-rose-500 transition-colors">
             <UIcon
               name="i-lucide-file-spreadsheet"
               class="size-5 text-primary-700 dark:text-primary-300 group-hover:text-white transition-colors"
@@ -188,7 +188,7 @@ function download(format: 'xlsx' | 'pdf') {
           class="group text-left rounded-2xl ring-1 ring-default p-5 hover:ring-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950 transition-colors"
           @click="download('pdf')"
         >
-          <div class="size-11 rounded-xl bg-rose-100 dark:bg-rose-900 flex items-center justify-center mb-3 group-hover:bg-rose-500 transition-colors">
+          <div class="size-11 rounded-xl bg-rose-100 dark:bg-rose-900 flex items-center justify-center mb-3 group-hover:bg-linear-to-br group-hover:from-rose-500 group-hover:to-primary-500 transition-colors">
             <UIcon
               name="i-lucide-file-text"
               class="size-5 text-rose-700 dark:text-rose-300 group-hover:text-white transition-colors"

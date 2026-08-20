@@ -27,7 +27,18 @@ async function addCategory() {
   await refresh()
 }
 
-async function removeCategory(id: number) {
+const { $swal } = useNuxtApp()
+
+async function removeCategory(id: number, name: string) {
+  const result = await $swal.fire({
+    title: 'Hapus kategori?',
+    text: `"${name}" akan dihapus permanen.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Hapus',
+    cancelButtonText: 'Batal'
+  })
+  if (!result.isConfirmed) return
   await $fetch(`/api/admin/categories/${id}`, { method: 'DELETE' })
   await refresh()
 }
@@ -61,6 +72,7 @@ async function removeCategory(id: number) {
         <UButton
           type="submit"
           icon="i-lucide-plus"
+          class="bg-linear-to-r from-primary-500 to-rose-500 hover:brightness-105 shadow-sm shadow-primary-500/30"
         >
           Tambah
         </UButton>
@@ -78,7 +90,7 @@ async function removeCategory(id: number) {
             color="error"
             variant="ghost"
             size="sm"
-            @click="removeCategory(cat.id)"
+            @click="removeCategory(cat.id, cat.name)"
           />
         </div>
         <p

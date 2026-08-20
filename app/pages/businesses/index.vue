@@ -47,6 +47,7 @@ async function addBusiness() {
           type="submit"
           icon="i-lucide-plus"
           :loading="creating"
+          class="bg-linear-to-r from-primary-500 to-rose-500 hover:brightness-105 shadow-sm shadow-primary-500/30"
         >
           Tambah Usaha
         </UButton>
@@ -65,10 +66,10 @@ async function addBusiness() {
         :ui="{ body: 'flex items-center justify-between' }"
       >
         <div class="flex items-center gap-3">
-          <div class="size-10 rounded-xl bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+          <div class="size-10 rounded-xl bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center shadow-sm shadow-primary-500/30">
             <UIcon
               name="i-lucide-briefcase"
-              class="size-5 text-primary-700 dark:text-primary-300"
+              class="size-5 text-white"
             />
           </div>
           <div>

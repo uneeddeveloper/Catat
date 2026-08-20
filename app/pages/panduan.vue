@@ -35,10 +35,10 @@ const tgCommands = [
       <UCard>
         <template #header>
           <div class="flex items-center gap-2">
-            <div class="size-8 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center shrink-0">
+            <div class="size-8 rounded-lg bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center shrink-0 shadow-sm shadow-primary-500/30">
               <UIcon
                 name="i-lucide-message-square"
-                class="size-4 text-primary-700 dark:text-primary-300"
+                class="size-4 text-white"
               />
             </div>
             <p class="font-medium">

@@ -75,7 +75,8 @@ export default defineEventHandler(async (event) => {
     expenseDate: transactions.expenseDate,
     chatTitle: chats.title,
     businessName: businesses.name,
-    categoryName: categories.name
+    categoryName: categories.name,
+    receiptImageUrl: transactions.receiptImageUrl
   })
     .from(transactions)
     .leftJoin(chats, eq(transactions.chatId, chats.id))

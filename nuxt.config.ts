@@ -13,6 +13,16 @@ export default defineNuxtConfig({
     enabled: false
   },
 
+  app: {
+    head: {
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Lilita+One&display=swap' }
+      ]
+    }
+  },
+
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {

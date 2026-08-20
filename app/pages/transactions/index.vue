@@ -24,7 +24,8 @@ interface TransactionRow {
 interface Category { id: number, name: string }
 interface ChatOption { id: number, title: string | null }
 
-const search = ref('')
+const route = useRoute()
+const search = ref(typeof route.query.search === 'string' ? route.query.search : '')
 const chatId = ref<number | undefined>()
 const categoryId = ref<number | undefined>()
 const type = ref<'expense' | 'income' | undefined>()
@@ -45,7 +46,18 @@ async function updateCategory(transactionId: number, newCategoryId: number) {
   await refresh()
 }
 
+const { $swal } = useNuxtApp()
+
 async function removeTransaction(transactionId: number) {
+  const result = await $swal.fire({
+    title: 'Hapus transaksi?',
+    text: 'Transaksi ini akan dihapus permanen dan tidak bisa dikembalikan.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Hapus',
+    cancelButtonText: 'Batal'
+  })
+  if (!result.isConfirmed) return
   await $fetch(`/api/admin/transactions/${transactionId}`, { method: 'DELETE' })
   await refresh()
 }

@@ -74,7 +74,7 @@ async function addAdmin() {
           :key="admin.id"
           class="flex items-center gap-3 px-4 py-3"
         >
-          <div class="size-9 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-medium text-sm shrink-0">
+          <div class="size-9 rounded-full bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center text-white font-semibold text-sm shrink-0 shadow-sm shadow-primary-500/30">
             {{ admin.name.charAt(0).toUpperCase() }}
           </div>
           <div class="min-w-0 flex-1">
@@ -105,10 +105,10 @@ async function addAdmin() {
       <UCard>
         <template #header>
           <div class="flex items-center gap-2">
-            <div class="size-8 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center shrink-0">
+            <div class="size-8 rounded-lg bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center shrink-0 shadow-sm shadow-primary-500/30">
               <UIcon
                 name="i-lucide-user-plus"
-                class="size-4 text-primary-700 dark:text-primary-300"
+                class="size-4 text-white"
               />
             </div>
             <div>
@@ -194,7 +194,7 @@ async function addAdmin() {
             type="submit"
             icon="i-lucide-user-plus"
             :loading="submitting"
-            class="self-start"
+            class="self-start bg-linear-to-r from-primary-500 to-rose-500 hover:brightness-105 shadow-sm shadow-primary-500/30"
           >
             Tambah Admin
           </UButton>
