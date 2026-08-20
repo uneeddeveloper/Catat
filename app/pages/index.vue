@@ -2,9 +2,10 @@
 definePageMeta({ layout: false })
 
 interface DashboardData {
+  range: { from: string, to: string, label: string }
   summary: {
-    totalExpenseThisMonth: number
-    totalIncomeThisMonth: number
+    totalExpense: number
+    totalIncome: number
     transactionCount: number
     averagePerDay: number
     byCategory: { name: string, total: number }[]
@@ -23,14 +24,57 @@ interface DashboardData {
   }[]
 }
 
-const { data } = await useFetch<DashboardData>('/api/admin/dashboard')
+type Period = 'day' | 'week' | 'month' | 'year' | 'custom'
+
+const periodOptions: { label: string, value: Period }[] = [
+  { label: 'Hari ini', value: 'day' },
+  { label: 'Minggu ini', value: 'week' },
+  { label: 'Bulan ini', value: 'month' },
+  { label: 'Tahun ini', value: 'year' },
+  { label: 'Custom', value: 'custom' }
+]
+
+const period = ref<Period>('month')
+const customFrom = ref('')
+const customTo = ref('')
+const pendingFrom = ref('')
+const pendingTo = ref('')
+
+function selectPreset(value: Period) {
+  if (value === 'custom') {
+    pendingFrom.value = customFrom.value
+    pendingTo.value = customTo.value
+    period.value = 'custom'
+    return
+  }
+  period.value = value
+}
+
+function applyCustomRange() {
+  if (!pendingFrom.value || !pendingTo.value) return
+  customFrom.value = pendingFrom.value
+  customTo.value = pendingTo.value
+}
+
+const query = computed(() => {
+  const q: Record<string, string> = { period: period.value }
+  if (period.value === 'custom' && customFrom.value && customTo.value) {
+    q.from = customFrom.value
+    q.to = customTo.value
+  }
+  return q
+})
+
+const { data, pending } = await useFetch<DashboardData>('/api/admin/dashboard', { query })
 
 function formatRupiah(amount: number | string) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(amount))
 }
 
+const rangeLabel = computed(() => data.value?.range?.label ?? 'Ringkasan pengeluaran')
+
 const quickStats = computed(() => [
-  { label: 'Total Pengeluaran', value: formatRupiah(data.value?.summary.totalExpenseThisMonth ?? 0), icon: 'i-lucide-wallet', tint: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300' },
+  { label: 'Total Pengeluaran', value: formatRupiah(data.value?.summary.totalExpense ?? 0), icon: 'i-lucide-wallet', tint: 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300' },
   { label: 'Rata-rata/hari', value: formatRupiah(data.value?.summary.averagePerDay ?? 0), icon: 'i-lucide-trending-up', tint: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' },
   { label: 'Total Transaksi', value: `${data.value?.summary.transactionCount ?? 0}`, icon: 'i-lucide-receipt-text', tint: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' }
 ])
@@ -45,13 +89,13 @@ const categoryColors = [
 ]
 
 function categoryPercent(total: number) {
-  const sum = data.value?.summary.totalExpenseThisMonth ?? 0
+  const sum = data.value?.summary.totalExpense ?? 0
   return sum > 0 ? Math.max(1, Math.round((total / sum) * 100)) : 0
 }
 
 const categoryDonutStyle = computed(() => {
   const cats = data.value?.summary.byCategory ?? []
-  const sum = data.value?.summary.totalExpenseThisMonth ?? 0
+  const sum = data.value?.summary.totalExpense ?? 0
   if (!cats.length || sum <= 0) {
     return { background: 'var(--ui-color-neutral-100)' }
   }
@@ -108,11 +152,58 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
     <template #header>
       <AppTopbar
         title="Dashboard"
-        subtitle="Ringkasan pengeluaran bulan ini"
+        :subtitle="rangeLabel"
       />
     </template>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="mb-6 rounded-2xl ring-1 ring-default bg-elevated/40 p-3 sm:p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <button
+          v-for="opt in periodOptions"
+          :key="opt.value"
+          type="button"
+          class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer"
+          :class="period === opt.value
+            ? 'bg-primary-500 text-white shadow-sm'
+            : 'text-muted hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-950 dark:hover:text-primary-400'"
+          @click="selectPreset(opt.value)"
+        >
+          {{ opt.label }}
+        </button>
+      </div>
+
+      <div
+        v-if="period === 'custom'"
+        class="flex items-center gap-2 flex-wrap"
+      >
+        <UInput
+          v-model="pendingFrom"
+          type="date"
+          size="sm"
+          icon="i-lucide-calendar"
+        />
+        <span class="text-muted text-sm">–</span>
+        <UInput
+          v-model="pendingTo"
+          type="date"
+          size="sm"
+          icon="i-lucide-calendar"
+        />
+        <UButton
+          size="sm"
+          icon="i-lucide-check"
+          :disabled="!pendingFrom || !pendingTo"
+          @click="applyCustomRange"
+        >
+          Terapkan
+        </UButton>
+      </div>
+    </div>
+
+    <div
+      class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 transition-opacity"
+      :class="{ 'opacity-60': pending }"
+    >
       <div
         v-for="stat in quickStats"
         :key="stat.label"
@@ -143,7 +234,7 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
       class="mb-6"
     >
       <p class="text-sm font-medium text-muted mb-3">
-        Per usaha — bulan ini
+        Per usaha — {{ rangeLabel }}
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
@@ -194,7 +285,7 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
               variant="subtle"
               size="sm"
             >
-              {{ data?.dailyTrend?.length ?? 0 }} hari terakhir
+              {{ rangeLabel }}
             </UBadge>
           </div>
           <p class="text-xs text-muted mt-0.5">
@@ -282,7 +373,7 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
           v-else
           class="text-sm text-muted"
         >
-          Belum ada data bulan ini
+          Belum ada data pada periode ini
         </p>
       </UCard>
 
@@ -292,7 +383,7 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
             Pengeluaran per kategori
           </p>
           <p class="text-xs text-muted mt-0.5">
-            Bulan ini
+            {{ rangeLabel }}
           </p>
         </template>
 
@@ -307,7 +398,7 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
             />
             <div class="absolute inset-2.5 rounded-full bg-white dark:bg-gray-900 flex flex-col items-center justify-center text-center px-2">
               <span class="text-[10px] text-muted">Total</span>
-              <span class="text-xs font-semibold leading-tight">{{ formatRupiah(data.summary.totalExpenseThisMonth) }}</span>
+              <span class="text-xs font-semibold leading-tight">{{ formatRupiah(data.summary.totalExpense) }}</span>
             </div>
           </div>
 
@@ -330,7 +421,7 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
           v-else
           class="text-sm text-muted"
         >
-          Belum ada data bulan ini
+          Belum ada data pada periode ini
         </p>
       </UCard>
     </div>
@@ -414,8 +505,8 @@ const trendTotal = computed(() => (data.value?.dailyTrend ?? []).reduce((acc, d)
           :style="{ background: `conic-gradient(var(--ui-color-primary-500) 0% ${categoryPercent(data?.summary.byCategory?.[0]?.total ?? 0)}%, var(--ui-color-primary-100) ${categoryPercent(data?.summary.byCategory?.[0]?.total ?? 0)}% 100%)` }"
         />
         <div class="absolute inset-3 rounded-full bg-white dark:bg-gray-900 flex flex-col items-center justify-center text-center px-2">
-          <span class="text-sm font-semibold leading-tight">{{ formatRupiah(data?.summary.totalExpenseThisMonth ?? 0) }}</span>
-          <span class="text-xs text-muted">bulan ini</span>
+          <span class="text-sm font-semibold leading-tight">{{ formatRupiah(data?.summary.totalExpense ?? 0) }}</span>
+          <span class="text-xs text-muted">periode ini</span>
         </div>
       </div>
       <p
