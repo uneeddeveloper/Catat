@@ -83,8 +83,8 @@ function download(format: 'xlsx' | 'pdf') {
       />
     </template>
 
-    <div class="max-w-2xl flex flex-col gap-4">
-      <UCard>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+      <UCard class="lg:col-span-2">
         <template #header>
           <div class="flex items-center gap-2">
             <div class="size-8 rounded-lg bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center shrink-0 shadow-sm shadow-primary-500/30">
@@ -100,18 +100,44 @@ function download(format: 'xlsx' | 'pdf') {
         </template>
 
         <div class="flex flex-col gap-4">
-          <UFormField label="Periode">
-            <USelect
-              v-model="period"
-              :items="periodOptions"
-              icon="i-lucide-calendar"
-              class="w-full"
-            />
-          </UFormField>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <UFormField label="Periode">
+              <USelect
+                v-model="period"
+                :items="periodOptions"
+                icon="i-lucide-calendar"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UFormField
+              v-if="!isScoped"
+              label="Usaha"
+            >
+              <USelect
+                v-model="scope"
+                :items="scopeOptions"
+                icon="i-lucide-briefcase"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField
+              v-else
+              label="Usaha"
+            >
+              <div class="flex items-center gap-2 text-sm h-full">
+                <UIcon
+                  name="i-lucide-briefcase"
+                  class="size-4 text-muted"
+                />
+                {{ user?.businessName }}
+              </div>
+            </UFormField>
+          </div>
 
           <div
             v-if="period === 'custom'"
-            class="grid grid-cols-2 gap-3"
+            class="grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
             <UFormField label="Dari tanggal">
               <UInput
@@ -129,30 +155,6 @@ function download(format: 'xlsx' | 'pdf') {
             </UFormField>
           </div>
 
-          <UFormField
-            v-if="!isScoped"
-            label="Usaha"
-          >
-            <USelect
-              v-model="scope"
-              :items="scopeOptions"
-              icon="i-lucide-briefcase"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            v-else
-            label="Usaha"
-          >
-            <div class="flex items-center gap-2 text-sm">
-              <UIcon
-                name="i-lucide-briefcase"
-                class="size-4 text-muted"
-              />
-              {{ user?.businessName }}
-            </div>
-          </UFormField>
-
           <div class="flex items-center gap-2 rounded-xl bg-primary-50 dark:bg-primary-950 px-4 py-3 text-sm text-primary-700 dark:text-primary-300">
             <UIcon
               name="i-lucide-calendar-range"
@@ -163,10 +165,10 @@ function download(format: 'xlsx' | 'pdf') {
         </div>
       </UCard>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="flex flex-col gap-4">
         <button
           type="button"
-          class="group text-left rounded-2xl ring-1 ring-default p-5 hover:ring-primary-500 dark:hover:ring-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950 transition-colors"
+          class="group text-left rounded-2xl ring-1 ring-default p-5 hover:bg-primary-50 dark:hover:bg-primary-950 hover:shadow-sm transition-colors"
           @click="download('xlsx')"
         >
           <div class="size-11 rounded-xl bg-primary-100 dark:bg-primary-900 flex items-center justify-center mb-3 group-hover:bg-linear-to-br group-hover:from-primary-500 group-hover:to-rose-500 transition-colors">
@@ -185,7 +187,7 @@ function download(format: 'xlsx' | 'pdf') {
 
         <button
           type="button"
-          class="group text-left rounded-2xl ring-1 ring-default p-5 hover:ring-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950 transition-colors"
+          class="group text-left rounded-2xl ring-1 ring-default p-5 hover:bg-rose-50 dark:hover:bg-rose-950 hover:shadow-sm transition-colors"
           @click="download('pdf')"
         >
           <div class="size-11 rounded-xl bg-rose-100 dark:bg-rose-900 flex items-center justify-center mb-3 group-hover:bg-linear-to-br group-hover:from-rose-500 group-hover:to-primary-500 transition-colors">

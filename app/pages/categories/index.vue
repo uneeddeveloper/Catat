@@ -14,20 +14,52 @@ const scopeOptions = computed(() => [
   ...(businesses.value ?? []).map(b => ({ label: b.name, value: b.id }))
 ])
 
+const scopeLabel = computed(() => scopeOptions.value.find(o => o.value === scope.value)?.label ?? '')
+
 const { data: categories, refresh } = await useFetch<Category[]>('/api/admin/categories', {
   query: computed(() => ({ businessId: scope.value || 'null' }))
 })
 
+const open = ref(false)
 const newName = ref('')
 
 async function addCategory() {
   if (!newName.value.trim()) return
   await $fetch('/api/admin/categories', { method: 'POST', body: { name: newName.value.trim(), businessId: scope.value || null } })
   newName.value = ''
+  open.value = false
   await refresh()
 }
 
 const { $swal } = useNuxtApp()
+
+const CATEGORY_ICON_RULES: [RegExp, string][] = [
+  [/listrik/, 'i-lucide-zap'],
+  [/\bair\b|pdam/, 'i-lucide-droplet'],
+  [/internet|wifi|pulsa/, 'i-lucide-wifi'],
+  [/bensin|bbm|bahan bakar/, 'i-lucide-fuel'],
+  [/makan/, 'i-lucide-utensils'],
+  [/transport/, 'i-lucide-car'],
+  [/belanja/, 'i-lucide-shopping-bag'],
+  [/pakaian|baju|fashion/, 'i-lucide-shirt'],
+  [/hiburan/, 'i-lucide-popcorn'],
+  [/kesehatan|obat|dokter/, 'i-lucide-heart-pulse'],
+  [/pendidikan|sekolah/, 'i-lucide-graduation-cap'],
+  [/gaji|upah/, 'i-lucide-wallet'],
+  [/jual/, 'i-lucide-trending-up'],
+  [/operasional/, 'i-lucide-briefcase'],
+  [/bahan|stok/, 'i-lucide-package'],
+  [/rumah|sewa|kontrakan/, 'i-lucide-home'],
+  [/investasi|saham/, 'i-lucide-line-chart'],
+  [/tabungan/, 'i-lucide-piggy-bank'],
+  [/hadiah/, 'i-lucide-gift'],
+  [/tagihan/, 'i-lucide-receipt']
+]
+
+function categoryIcon(name: string) {
+  const n = name.toLowerCase()
+  return CATEGORY_ICON_RULES.find(([re]) => re.test(n))?.[1] ?? 'i-lucide-tag'
+}
 
 async function removeCategory(id: number, name: string) {
   const result = await $swal.fire({
@@ -54,63 +86,71 @@ async function removeCategory(id: number, name: string) {
     </template>
 
     <div class="flex flex-col gap-4">
-      <UCard class="max-w-2xl">
-        <template #header>
-          <div class="flex items-center gap-2">
-            <div class="size-8 rounded-lg bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center shrink-0 shadow-sm shadow-primary-500/30">
-              <UIcon
-                name="i-lucide-tag"
-                class="size-4 text-white"
-              />
-            </div>
-            <p class="font-medium">
-              Kelola kategori
-            </p>
-          </div>
-        </template>
-
-        <div class="flex flex-col gap-4">
-          <UFormField label="Scope">
-            <USelect
-              v-model="scope"
-              :items="scopeOptions"
-              icon="i-lucide-briefcase"
-              class="w-full"
-            />
-          </UFormField>
-
-          <form
-            class="flex gap-2"
-            @submit.prevent="addCategory"
-          >
-            <UInput
-              v-model="newName"
-              placeholder="Nama kategori baru"
-              class="flex-1"
-            />
-            <UButton
-              type="submit"
-              icon="i-lucide-plus"
-              class="bg-linear-to-r from-primary-500 to-rose-500 hover:brightness-105 shadow-sm shadow-primary-500/30"
-            >
-              Tambah
-            </UButton>
-          </form>
-        </div>
-      </UCard>
-
       <UCard :ui="{ header: 'py-3' }">
         <template #header>
-          <div class="flex items-center justify-between">
-            <p class="font-medium">
-              Daftar kategori
-            </p>
-            <UBadge
-              color="neutral"
-              variant="subtle"
-            >
-              {{ categories?.length ?? 0 }} kategori
-            </UBadge>
+          <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <p class="font-medium">
+                Daftar kategori
+              </p>
+              <p class="text-xs text-muted truncate">
+                {{ scopeLabel }}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <UBadge
+                color="neutral"
+                variant="subtle"
+              >
+                {{ categories?.length ?? 0 }} kategori
+              </UBadge>
+
+              <UModal
+                v-model:open="open"
+                title="Tambah kategori"
+              >
+                <UButton
+                  icon="i-lucide-plus"
+                  size="sm"
+                  class="bg-linear-to-r from-primary-500 to-rose-500 hover:brightness-105 shadow-sm shadow-primary-500/30"
+                >
+                  Tambah
+                </UButton>
+
+                <template #body>
+                  <div class="flex flex-col gap-4">
+                    <UFormField label="Scope">
+                      <USelect
+                        v-model="scope"
+                        :items="scopeOptions"
+                        icon="i-lucide-briefcase"
+                        class="w-full"
+                      />
+                    </UFormField>
+
+                    <form
+                      class="flex gap-2"
+                      @submit.prevent="addCategory"
+                    >
+                      <UInput
+                        v-model="newName"
+                        placeholder="Nama kategori baru"
+                        class="flex-1"
+                        autofocus
+                      />
+                      <UButton
+                        type="submit"
+                        icon="i-lucide-plus"
+                        class="bg-linear-to-r from-primary-500 to-rose-500 hover:brightness-105 shadow-sm shadow-primary-500/30"
+                      >
+                        Tambah
+                      </UButton>
+                    </form>
+                  </div>
+                </template>
+              </UModal>
+            </div>
           </div>
         </template>
 
@@ -123,7 +163,7 @@ async function removeCategory(id: number, name: string) {
             <div class="flex items-center justify-between">
               <div class="size-9 rounded-lg bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center shrink-0 shadow-sm shadow-primary-500/30">
                 <UIcon
-                  name="i-lucide-tag"
+                  :name="categoryIcon(cat.name)"
                   class="size-4 text-white"
                 />
               </div>
