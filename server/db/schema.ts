@@ -71,6 +71,18 @@ export const transactions = mysqlTable('transactions', {
   dateIdx: index('transactions_date_idx').on(table.expenseDate)
 }))
 
+export const aiUsageLogs = mysqlTable('ai_usage_logs', {
+  id: int('id').autoincrement().primaryKey(),
+  model: varchar('model', { length: 80 }).notNull(),
+  promptTokens: int('prompt_tokens').notNull(),
+  completionTokens: int('completion_tokens').notNull(),
+  totalTokens: int('total_tokens').notNull(),
+  source: mysqlEnum('source', ['text', 'photo']).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+}, table => ({
+  dateIdx: index('ai_usage_logs_date_idx').on(table.createdAt)
+}))
+
 export const transactionItems = mysqlTable('transaction_items', {
   id: int('id').autoincrement().primaryKey(),
   transactionId: int('transaction_id').notNull().references(() => transactions.id, { onDelete: 'cascade' }),

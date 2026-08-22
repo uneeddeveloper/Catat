@@ -91,7 +91,15 @@ export default defineNuxtConfig({
         'lucide:user-plus',
         'lucide:file-spreadsheet',
         'lucide:file-text',
-        'lucide:more-horizontal'
+        'lucide:more-horizontal',
+        'lucide:cpu',
+        'lucide:message-circle',
+        'lucide:database',
+        'lucide:download',
+        'lucide:loader-2',
+        'lucide:info',
+        'lucide:pencil',
+        'lucide:check'
       ],
       scan: true
     }

@@ -1,5 +1,6 @@
 import { useOpenAi, EXPENSE_MODEL } from './openaiClient'
 import { transactionJsonSchema, type TransactionExtraction } from './types'
+import { logAiUsage } from './usageLog'
 
 export async function parseExpenseText(text: string, categoryNames: string[]): Promise<TransactionExtraction> {
   const openai = useOpenAi()
@@ -15,6 +16,16 @@ export async function parseExpenseText(text: string, categoryNames: string[]): P
     ],
     response_format: { type: 'json_schema', json_schema: transactionJsonSchema(categoryNames) }
   })
+
+  if (response.usage) {
+    await logAiUsage({
+      model: EXPENSE_MODEL,
+      promptTokens: response.usage.prompt_tokens,
+      completionTokens: response.usage.completion_tokens,
+      totalTokens: response.usage.total_tokens,
+      source: 'text'
+    })
+  }
 
   const content = response.choices[0]?.message?.content
   if (!content) throw new Error('OpenAI returned empty response')
