@@ -19,6 +19,7 @@ interface TransactionRow {
   categoryName: string | null
   senderFirstName: string | null
   senderUsername: string | null
+  items: { name: string, price: number }[]
 }
 
 interface Category { id: number, name: string }
@@ -138,6 +139,19 @@ const typeOptions = [
           <p class="text-sm text-muted">
             {{ row.description }}<span v-if="row.merchant"> · {{ row.merchant }}</span>
           </p>
+          <ul
+            v-if="row.items.length"
+            class="flex flex-col gap-0.5 text-xs text-muted border-l-2 border-default pl-2 mt-0.5"
+          >
+            <li
+              v-for="(item, idx) in row.items"
+              :key="idx"
+              class="flex justify-between gap-4"
+            >
+              <span>{{ item.name }}</span>
+              <span>{{ formatRupiah(item.price) }}</span>
+            </li>
+          </ul>
           <p class="text-xs text-muted">
             {{ new Date(row.expenseDate).toLocaleString('id-ID') }} · {{ row.senderFirstName ?? row.senderUsername ?? '—' }}
           </p>

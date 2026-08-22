@@ -1,6 +1,6 @@
-import { and, eq, gte, lte, like, desc } from 'drizzle-orm'
+import { and, eq, gte, lte, like, desc, inArray } from 'drizzle-orm'
 import { useDb } from '../../../db/client'
-import { transactions, chats, categories, chatUsers, businesses } from '../../../db/schema'
+import { transactions, chats, categories, chatUsers, businesses, transactionItems } from '../../../db/schema'
 
 export default defineEventHandler(async (event) => {
   const admin = await requireAdmin(event)
@@ -46,5 +46,21 @@ export default defineEventHandler(async (event) => {
     .orderBy(desc(transactions.expenseDate))
     .limit(200)
 
-  return rows
+  const ids = rows.map(r => r.id)
+  const itemRows = ids.length
+    ? await db.select({
+        transactionId: transactionItems.transactionId,
+        name: transactionItems.name,
+        price: transactionItems.price
+      }).from(transactionItems).where(inArray(transactionItems.transactionId, ids))
+    : []
+
+  const itemsByTransaction = new Map<number, { name: string, price: number }[]>()
+  for (const item of itemRows) {
+    const list = itemsByTransaction.get(item.transactionId) ?? []
+    list.push({ name: item.name, price: Number(item.price) })
+    itemsByTransaction.set(item.transactionId, list)
+  }
+
+  return rows.map(row => ({ ...row, items: itemsByTransaction.get(row.id) ?? [] }))
 })

@@ -70,3 +70,13 @@ export const transactions = mysqlTable('transactions', {
   chatIdx: index('transactions_chat_idx').on(table.chatId),
   dateIdx: index('transactions_date_idx').on(table.expenseDate)
 }))
+
+export const transactionItems = mysqlTable('transaction_items', {
+  id: int('id').autoincrement().primaryKey(),
+  transactionId: int('transaction_id').notNull().references(() => transactions.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  price: decimal('price', { precision: 14, scale: 2 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+}, table => ({
+  transactionIdx: index('transaction_items_transaction_idx').on(table.transactionId)
+}))

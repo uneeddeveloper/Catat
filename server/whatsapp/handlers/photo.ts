@@ -1,5 +1,5 @@
 import { useDb } from '../../db/client'
-import { transactions } from '../../db/schema'
+import { transactions, transactionItems } from '../../db/schema'
 import { extractReceipt } from '../../llm/extractReceipt'
 import { uploadReceiptImage } from '../../storage/r2'
 import { resizeReceiptImage } from '../../storage/imageResize'
@@ -30,7 +30,7 @@ export async function handlePhoto(ctx: WaContext, mediaUrl: string) {
   const category = categoryList.find(c => c.name === extraction.category) ?? categoryList.find(c => c.name === 'Lainnya')
 
   const db = useDb()
-  await db.insert(transactions).values({
+  const [result] = await db.insert(transactions).values({
     chatId: ctx.chat.id,
     senderId: ctx.user.id,
     categoryId: category?.id,
@@ -44,6 +44,14 @@ export async function handlePhoto(ctx: WaContext, mediaUrl: string) {
     source: 'photo',
     rawLlmResponse: extraction
   })
+
+  if (extraction.items.length) {
+    await db.insert(transactionItems).values(extraction.items.map(item => ({
+      transactionId: result.insertId,
+      name: item.name,
+      price: String(item.price)
+    })))
+  }
 
   const summary = buildTransactionSummaryText(extraction, category?.name ?? 'Lainnya', ctx.senderName, business?.name)
   await sendFonnteMessage({ target: ctx.target, message: `${summary}\n\n${FOOTER}` })

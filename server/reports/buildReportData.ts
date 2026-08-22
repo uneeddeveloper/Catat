@@ -1,6 +1,11 @@
-import { and, eq, gte, lte, isNull, desc } from 'drizzle-orm'
+import { and, eq, gte, lte, isNull, desc, inArray } from 'drizzle-orm'
 import { useDb } from '../db/client'
-import { transactions, categories, chatUsers, chats, businesses } from '../db/schema'
+import { transactions, categories, chatUsers, chats, businesses, transactionItems } from '../db/schema'
+
+export interface ReportItem {
+  name: string
+  price: number
+}
 
 export interface ReportRow {
   id: number
@@ -11,6 +16,7 @@ export interface ReportRow {
   merchant: string | null
   description: string | null
   senderName: string
+  items: ReportItem[]
 }
 
 export interface ReportData {
@@ -55,6 +61,22 @@ export async function buildReportData(params: { businessId: number | null, from:
     ))
     .orderBy(desc(transactions.expenseDate))
 
+  const ids = rows.map(r => r.id)
+  const itemRows = ids.length
+    ? await db.select({
+        transactionId: transactionItems.transactionId,
+        name: transactionItems.name,
+        price: transactionItems.price
+      }).from(transactionItems).where(inArray(transactionItems.transactionId, ids))
+    : []
+
+  const itemsByTransaction = new Map<number, ReportItem[]>()
+  for (const item of itemRows) {
+    const list = itemsByTransaction.get(item.transactionId) ?? []
+    list.push({ name: item.name, price: Number(item.price) })
+    itemsByTransaction.set(item.transactionId, list)
+  }
+
   const reportRows: ReportRow[] = rows.map(r => ({
     id: r.id,
     expenseDate: r.expenseDate,
@@ -63,7 +85,8 @@ export async function buildReportData(params: { businessId: number | null, from:
     categoryName: r.categoryName ?? 'Lainnya',
     merchant: r.merchant,
     description: r.description,
-    senderName: r.senderFirstName ?? r.senderUsername ?? 'Seseorang'
+    senderName: r.senderFirstName ?? r.senderUsername ?? 'Seseorang',
+    items: itemsByTransaction.get(r.id) ?? []
   }))
 
   const totalIncome = reportRows.filter(r => r.type === 'income').reduce((acc, r) => acc + r.amount, 0)

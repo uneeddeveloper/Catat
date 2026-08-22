@@ -1,6 +1,6 @@
 import type { Context } from 'grammy'
 import { useDb } from '../../db/client'
-import { transactions } from '../../db/schema'
+import { transactions, transactionItems } from '../../db/schema'
 import { extractReceipt } from '../../llm/extractReceipt'
 import { uploadReceiptImage } from '../../storage/r2'
 import { resizeReceiptImage } from '../../storage/imageResize'
@@ -51,6 +51,14 @@ export async function handlePhoto(ctx: Context) {
     source: 'photo',
     rawLlmResponse: extraction
   })
+
+  if (extraction.items.length) {
+    await db.insert(transactionItems).values(extraction.items.map(item => ({
+      transactionId: result.insertId,
+      name: item.name,
+      price: String(item.price)
+    })))
+  }
 
   const senderName = ctx.from?.first_name ?? ctx.from?.username ?? 'Seseorang'
   await ctx.reply(buildTransactionSummaryText(extraction, category?.name ?? 'Lainnya', senderName, business?.name), {

@@ -1,6 +1,6 @@
 import type { Context } from 'grammy'
 import { useDb } from '../../db/client'
-import { transactions } from '../../db/schema'
+import { transactions, transactionItems } from '../../db/schema'
 import { parseExpenseText } from '../../llm/parseExpenseText'
 import { upsertChat, upsertTelegramUser, getBusinessForChat, getCategories, buildTransactionSummaryText, buildSummaryKeyboard } from '../helpers'
 
@@ -34,6 +34,14 @@ export async function handleText(ctx: Context) {
     source: 'text',
     rawLlmResponse: extraction
   })
+
+  if (extraction.items.length) {
+    await db.insert(transactionItems).values(extraction.items.map(item => ({
+      transactionId: result.insertId,
+      name: item.name,
+      price: String(item.price)
+    })))
+  }
 
   const senderName = ctx.from?.first_name ?? ctx.from?.username ?? 'Seseorang'
   await ctx.reply(buildTransactionSummaryText(extraction, category?.name ?? 'Lainnya', senderName, business?.name), {

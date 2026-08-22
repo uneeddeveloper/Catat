@@ -1,5 +1,5 @@
 import { useDb } from '../../db/client'
-import { transactions } from '../../db/schema'
+import { transactions, transactionItems } from '../../db/schema'
 import { parseExpenseText } from '../../llm/parseExpenseText'
 import { getBusinessForChat, getCategories, buildTransactionSummaryText } from '../../chat/helpers'
 import { sendFonnteMessage } from '../fonnteClient'
@@ -20,7 +20,7 @@ export async function handleText(ctx: WaContext, text: string) {
   const category = categoryList.find(c => c.name === extraction.category) ?? categoryList.find(c => c.name === 'Lainnya')
 
   const db = useDb()
-  await db.insert(transactions).values({
+  const [result] = await db.insert(transactions).values({
     chatId: ctx.chat.id,
     senderId: ctx.user.id,
     categoryId: category?.id,
@@ -33,6 +33,14 @@ export async function handleText(ctx: WaContext, text: string) {
     source: 'text',
     rawLlmResponse: extraction
   })
+
+  if (extraction.items.length) {
+    await db.insert(transactionItems).values(extraction.items.map(item => ({
+      transactionId: result.insertId,
+      name: item.name,
+      price: String(item.price)
+    })))
+  }
 
   const summary = buildTransactionSummaryText(extraction, category?.name ?? 'Lainnya', ctx.senderName, business?.name)
   await sendFonnteMessage({ target: ctx.target, message: `${summary}\n\n${FOOTER}` })
