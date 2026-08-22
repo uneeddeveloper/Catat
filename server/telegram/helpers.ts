@@ -26,6 +26,8 @@ export async function upsertTelegramUser(ctx: Context) {
 export function buildSummaryKeyboard(transactionId: number) {
   return new InlineKeyboard()
     .text('✏️ Ganti kategori', `catmenu:${transactionId}`)
+    .text('🔄 Tukar jenis', `swap:${transactionId}`)
+    .row()
     .text('🗑️ Hapus', `del:${transactionId}`)
 }
 

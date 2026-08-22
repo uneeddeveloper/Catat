@@ -1,6 +1,6 @@
 import { desc, eq } from 'drizzle-orm'
 import { useDb } from '../../db/client'
-import { transactions, chatUsers } from '../../db/schema'
+import { transactions, chatUsers, categories } from '../../db/schema'
 import { getCategories, getBusinessForChat, buildTransactionSummaryText } from '../../chat/helpers'
 import { sendFonnteMessage } from '../fonnteClient'
 import type { TransactionExtraction } from '../../llm/types'
@@ -25,6 +25,42 @@ export async function handleHapus(target: string, chat: WaChat) {
   const db = useDb()
   await db.delete(transactions).where(eq(transactions.id, latest.id))
   await sendFonnteMessage({ target, message: '❌ Transaksi terakhir dihapus.' })
+}
+
+export async function handleTukarJenis(target: string, chat: WaChat) {
+  const latest = await findLatestTransaction(chat.id)
+  if (!latest) {
+    await sendFonnteMessage({ target, message: 'Belum ada transaksi buat ditukar jenisnya.' })
+    return
+  }
+
+  const newType = latest.type === 'income' ? 'expense' : 'income'
+  const db = useDb()
+  await db.update(transactions).set({ type: newType }).where(eq(transactions.id, latest.id))
+
+  const [business, [senderRow], [categoryRow]] = await Promise.all([
+    getBusinessForChat(chat),
+    db.select({ firstName: chatUsers.firstName, username: chatUsers.username }).from(chatUsers).where(eq(chatUsers.id, latest.senderId)).limit(1),
+    latest.categoryId
+      ? db.select({ name: categories.name }).from(categories).where(eq(categories.id, latest.categoryId)).limit(1)
+      : Promise.resolve([] as { name: string }[])
+  ])
+  const senderName = senderRow?.firstName ?? senderRow?.username ?? 'Seseorang'
+  const categoryName = categoryRow?.name ?? 'Lainnya'
+
+  const extraction: TransactionExtraction = {
+    amount: Number(latest.amount),
+    type: newType,
+    currency: latest.currency,
+    merchant: latest.merchant,
+    description: latest.description ?? '',
+    category: categoryName,
+    date: null,
+    items: [],
+    confidence: 'high'
+  }
+
+  await sendFonnteMessage({ target, message: buildTransactionSummaryText(extraction, categoryName, senderName, business?.name) })
 }
 
 export async function handleGantiKategori(target: string, chat: WaChat, rawName: string) {

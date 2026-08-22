@@ -5,7 +5,7 @@ import { getBusinessForChat, getCategories, buildTransactionSummaryText } from '
 import { sendFonnteMessage } from '../fonnteClient'
 import type { WaContext } from '../types'
 
-const FOOTER = 'Balas "ganti <kategori>" buat ganti kategori, atau "hapus" buat hapus transaksi ini.'
+const FOOTER = 'Balas "ganti <kategori>" buat ganti kategori, "tukar" buat tukar jenis pemasukan/pengeluaran, atau "hapus" buat hapus transaksi ini.'
 
 export async function handleText(ctx: WaContext, text: string) {
   const [business, categoryList] = await Promise.all([getBusinessForChat(ctx.chat), getCategories(ctx.chat.businessId)])

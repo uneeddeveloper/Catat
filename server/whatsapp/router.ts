@@ -9,7 +9,7 @@ import { handleUsaha } from './handlers/usaha'
 import { handleKategori } from './handlers/kategori'
 import { handleRekap } from './handlers/rekap'
 import { handleLaporan } from './handlers/laporan'
-import { handleHapus, handleGantiKategori } from './handlers/edit'
+import { handleHapus, handleGantiKategori, handleTukarJenis } from './handlers/edit'
 import { handleText } from './handlers/text'
 import { handlePhoto } from './handlers/photo'
 import type { WaChat, WaContext } from './types'
@@ -75,6 +75,7 @@ export async function handleFonnteMessage(payload: FonntePayload) {
   if (lower === 'usaha') return handleUsaha(target, chat, '')
   if (lower === 'laporan' || lower.startsWith('laporan ')) return handleLaporan(target, chat, lower.replace(/^laporan\s*/, '').trim())
   if (lower === 'hapus') return handleHapus(target, chat)
+  if (lower === 'tukar') return handleTukarJenis(target, chat)
   if (lower.startsWith('ganti ')) return handleGantiKategori(target, chat, text.slice('ganti '.length).trim())
 
   return handleText(ctx, text)

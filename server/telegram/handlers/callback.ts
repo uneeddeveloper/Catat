@@ -78,6 +78,25 @@ export async function handleCallback(ctx: Context) {
     return
   }
 
+  if (data.startsWith('swap:')) {
+    const transactionId = Number(data.split(':')[1])
+    const current = await loadTransactionView(transactionId)
+    if (current) {
+      const newType = current.type === 'income' ? 'expense' : 'income'
+      await db.update(transactions).set({ type: newType }).where(eq(transactions.id, transactionId))
+
+      const row = await loadTransactionView(transactionId)
+      if (row) {
+        const senderName = row.senderFirstName ?? row.senderUsername ?? 'Seseorang'
+        await ctx.editMessageText(buildTransactionSummaryText(toExtraction(row), row.categoryName ?? 'Lainnya', senderName, row.businessName), {
+          reply_markup: buildSummaryKeyboard(transactionId)
+        })
+      }
+    }
+    await ctx.answerCallbackQuery('Jenis transaksi ditukar')
+    return
+  }
+
   if (data.startsWith('catmenu:')) {
     const transactionId = Number(data.split(':')[1])
     const row = await loadTransactionView(transactionId)
