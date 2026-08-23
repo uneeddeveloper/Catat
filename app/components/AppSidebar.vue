@@ -19,7 +19,6 @@ const moreLinks = computed(() => [
 ])
 
 const generalLinks = computed(() => [...primaryLinks.value, ...moreLinks.value.filter(l => l.to !== '/settings')])
-const toolLinks = computed(() => moreLinks.value.filter(l => l.to === '/settings'))
 
 const isMoreActive = computed(() => moreLinks.value.some(link => isActive(link.to)))
 
@@ -82,48 +81,6 @@ async function logout() {
         {{ link.label }}
       </NuxtLink>
     </nav>
-
-    <template v-if="toolLinks.length">
-      <p class="px-2 mb-1.5 text-xs font-semibold tracking-wide text-primary-600 dark:text-primary-400 uppercase">
-        Tools
-      </p>
-      <nav class="flex flex-col gap-0.5 mb-1">
-        <NuxtLink
-          v-for="link in toolLinks"
-          :key="link.to"
-          :to="link.to"
-          class="flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors"
-          :class="isActive(link.to)
-            ? 'bg-linear-to-r from-primary-500 to-rose-500 text-white shadow-sm shadow-primary-500/30'
-            : 'text-default hover:bg-primary-50 dark:hover:bg-primary-950'"
-        >
-          <span
-            class="size-6 rounded-lg flex items-center justify-center shrink-0"
-            :class="isActive(link.to) ? 'bg-white/20' : 'bg-primary-50 dark:bg-primary-950 text-primary-600 dark:text-primary-400'"
-          >
-            <UIcon
-              :name="link.icon"
-              class="size-3.5"
-            />
-          </span>
-          {{ link.label }}
-        </NuxtLink>
-      </nav>
-    </template>
-
-    <button
-      type="button"
-      class="mt-auto flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 transition-colors cursor-pointer"
-      @click="logout"
-    >
-      <span class="size-6 rounded-lg bg-rose-50 dark:bg-rose-950 flex items-center justify-center shrink-0">
-        <UIcon
-          name="i-lucide-log-out"
-          class="size-3.5"
-        />
-      </span>
-      Keluar
-    </button>
   </aside>
 
   <!-- Mobile & tablet: fixed bottom tab bar -->

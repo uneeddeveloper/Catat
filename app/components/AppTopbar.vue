@@ -1,7 +1,29 @@
 <script setup lang="ts">
 defineProps<{ title: string, subtitle?: string }>()
 
-const { user } = useUserSession()
+const { user, clear } = useUserSession()
+const { $swal } = useNuxtApp()
+
+const isSuperAdmin = computed(() => !user.value?.businessId)
+
+async function logout() {
+  const result = await $swal.fire({
+    title: 'Keluar dari akun?',
+    text: 'Kamu perlu login lagi untuk mengakses panel admin.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Keluar',
+    cancelButtonText: 'Batal'
+  })
+  if (!result.isConfirmed) return
+  await clear()
+  await navigateTo('/login')
+}
+
+const profileMenuItems = computed(() => [[
+  ...(isSuperAdmin.value ? [{ label: 'Pengaturan', icon: 'i-lucide-settings', to: '/settings' }] : []),
+  { label: 'Keluar', icon: 'i-lucide-log-out', color: 'error' as const, onSelect: logout }
+]])
 
 const searchQuery = ref('')
 
@@ -181,19 +203,31 @@ const liveClock = computed(() => clockNow.value?.toLocaleTimeString('id-ID', { h
         </template>
       </UPopover>
 
-      <div class="hidden lg:flex items-center gap-2.5 shrink-0 pl-1">
-        <div class="size-9 rounded-full bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm shadow-primary-500/30">
-          {{ (user?.name ?? '?').charAt(0).toUpperCase() }}
-        </div>
-        <div class="min-w-0 max-w-36">
-          <p class="font-semibold text-sm truncate">
-            {{ user?.name }}
-          </p>
-          <p class="text-xs text-muted truncate">
-            {{ user?.businessName ?? 'Super Admin' }}
-          </p>
-        </div>
-      </div>
+      <UDropdownMenu
+        :items="profileMenuItems"
+        :content="{ side: 'bottom', align: 'end' }"
+      >
+        <button
+          type="button"
+          class="hidden lg:flex items-center gap-2.5 shrink-0 pl-1 pr-2 py-1 rounded-full hover:bg-primary-50 dark:hover:bg-primary-950 transition-colors cursor-pointer"
+        >
+          <div class="size-9 rounded-full bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm shadow-primary-500/30">
+            {{ (user?.name ?? '?').charAt(0).toUpperCase() }}
+          </div>
+          <div class="min-w-0 max-w-36 text-left">
+            <p class="font-semibold text-sm truncate">
+              {{ user?.name }}
+            </p>
+            <p class="text-xs text-muted truncate">
+              {{ user?.businessName ?? 'Super Admin' }}
+            </p>
+          </div>
+          <UIcon
+            name="i-lucide-chevron-down"
+            class="size-3.5 text-muted shrink-0"
+          />
+        </button>
+      </UDropdownMenu>
     </div>
 
     <div class="min-w-0">
