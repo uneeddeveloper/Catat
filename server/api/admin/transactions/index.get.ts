@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
     .leftJoin(chatUsers, eq(transactions.senderId, chatUsers.id))
     .where(conditions.length ? and(...conditions) : undefined)
-    .orderBy(desc(transactions.expenseDate))
+    .orderBy(desc(transactions.createdAt))
     .limit(200)
 
   const ids = rows.map(r => r.id)
