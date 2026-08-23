@@ -38,9 +38,11 @@ async function submit() {
       </div>
 
       <div class="relative">
-        <div class="size-12 rounded-2xl bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center text-2xl shadow-lg shadow-primary-500/30 mb-5">
-          💸
-        </div>
+        <img
+          src="/logo.png"
+          alt="Catat"
+          class="size-12 rounded-2xl shadow-lg shadow-primary-500/30 mb-5"
+        >
         <h1 class="font-display text-2xl tracking-wide text-default">
           MASUK
         </h1>
