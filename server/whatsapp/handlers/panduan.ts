@@ -2,7 +2,7 @@ import { sendFonnteMessage } from '../fonnteClient'
 
 const SECTIONS: Record<string, string> = {
   main: [
-    '📖 *Panduan Bot Catat*',
+    '📖 *Panduan Bot TxStream*',
     '',
     'Ketik salah satu untuk lihat topik:',
     '• panduan pakai — cara mencatat transaksi',

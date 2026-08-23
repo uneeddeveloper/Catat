@@ -48,27 +48,13 @@ async function logout() {
 <template>
   <!-- Desktop: wide labeled sidebar -->
   <aside class="hidden lg:flex w-64 shrink-0 flex-col h-full rounded-3xl bg-white dark:bg-gray-900 shadow-sm ring-1 ring-black/5 dark:ring-white/10 p-4 overflow-y-auto">
-    <div class="flex items-center gap-2 mb-5 px-1">
+    <div class="flex items-center gap-2 mb-6 px-1">
       <img
         src="/logo.png"
-        alt="Catat"
+        alt="TxStream"
         class="size-8 shrink-0"
       >
-      <span class="font-display text-lg tracking-wide">Catat</span>
-    </div>
-
-    <div class="flex items-center gap-3 mb-5 px-1">
-      <div class="size-10 rounded-full bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center text-white font-semibold shrink-0 shadow-sm shadow-primary-500/30">
-        {{ (user?.name ?? '?').charAt(0).toUpperCase() }}
-      </div>
-      <div class="min-w-0">
-        <p class="font-semibold text-sm truncate">
-          {{ user?.name }}
-        </p>
-        <p class="text-xs text-muted truncate">
-          {{ user?.businessName ?? 'Super Admin' }}
-        </p>
-      </div>
+      <span class="font-display text-lg tracking-wide">TxStream</span>
     </div>
 
     <p class="px-2 mb-1.5 text-xs font-semibold tracking-wide text-primary-600 dark:text-primary-400 uppercase">

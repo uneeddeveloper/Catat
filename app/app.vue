@@ -5,8 +5,8 @@ useHead({
 })
 
 useSeoMeta({
-  title: 'Catat — Panel Admin Pengeluaran',
-  description: 'Pantau pengeluaran yang dicatat lewat bot Telegram Catat.'
+  title: 'TxStream — Panel Admin Pengeluaran',
+  description: 'Pantau pengeluaran yang dicatat lewat bot Telegram TxStream.'
 })
 </script>
 

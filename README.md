@@ -1,4 +1,4 @@
-# Catat
+# TxStream
 
 Bot Telegram pencatatan pengeluaran + panel admin. Bot bisa dipasang di chat personal maupun grup, menerima input teks bebas atau foto struk, lalu mengekstrak & mengategorikan pengeluaran otomatis pakai GPT-4o-mini. Semua data bisa dipantau lewat panel admin.
 

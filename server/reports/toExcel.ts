@@ -27,7 +27,7 @@ const THIN_BORDER: Partial<ExcelJS.Borders> = {
 
 export async function buildReportExcel(data: ReportData): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook()
-  workbook.creator = 'Catat'
+  workbook.creator = 'TxStream'
   workbook.created = new Date()
 
   buildSummarySheet(workbook, data)

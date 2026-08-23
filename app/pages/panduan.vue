@@ -27,7 +27,7 @@ const tgCommands = [
     <template #header>
       <AppTopbar
         title="Panduan"
-        subtitle="Cara pakai bot Catat lewat WhatsApp & Telegram"
+        subtitle="Cara pakai bot TxStream lewat WhatsApp & Telegram"
       />
     </template>
 

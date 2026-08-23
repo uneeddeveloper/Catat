@@ -40,7 +40,7 @@ async function submit() {
       <div class="relative">
         <img
           src="/logo.png"
-          alt="Catat"
+          alt="TxStream"
           class="size-12 rounded-2xl shadow-lg shadow-primary-500/30 mb-5"
         >
         <h1 class="font-display text-2xl tracking-wide text-default">

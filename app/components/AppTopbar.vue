@@ -1,6 +1,8 @@
 <script setup lang="ts">
 defineProps<{ title: string, subtitle?: string }>()
 
+const { user } = useUserSession()
+
 const searchQuery = ref('')
 
 function submitSearch() {
@@ -178,6 +180,20 @@ const liveClock = computed(() => clockNow.value?.toLocaleTimeString('id-ID', { h
           </div>
         </template>
       </UPopover>
+
+      <div class="hidden lg:flex items-center gap-2.5 shrink-0 pl-1">
+        <div class="size-9 rounded-full bg-linear-to-br from-primary-500 to-rose-500 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm shadow-primary-500/30">
+          {{ (user?.name ?? '?').charAt(0).toUpperCase() }}
+        </div>
+        <div class="min-w-0 max-w-36">
+          <p class="font-semibold text-sm truncate">
+            {{ user?.name }}
+          </p>
+          <p class="text-xs text-muted truncate">
+            {{ user?.businessName ?? 'Super Admin' }}
+          </p>
+        </div>
+      </div>
     </div>
 
     <div class="min-w-0">

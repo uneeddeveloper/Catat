@@ -12,7 +12,7 @@ const BACK_KEYBOARD = new InlineKeyboard().text('‹ Kembali ke menu', 'pnd:main
 
 const SECTIONS: Record<Section, string> = {
   main: [
-    '📖 *Panduan Bot Catat*',
+    '📖 *Panduan Bot TxStream*',
     '',
     'Pilih topik di bawah ini:'
   ].join('\n'),
