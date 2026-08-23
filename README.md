@@ -46,6 +46,8 @@ curl -X POST "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook" \
 
 Lalu invite bot ke grup/chat yang diinginkan dan kirim `/start`.
 
+Isi juga `TELEGRAM_WEBHOOK_URL` di `.env` lokal dengan URL di atas. Saat `npm run dev` jalan, bot otomatis pindah ke long polling (yang otomatis menghapus webhook produksi selama Telegram tidak izinkan dua mode aktif sekaligus) — begitu dev server berhenti atau restart, webhook produksi dipasang balik otomatis, jadi bot tidak mati saat project lokal ditutup.
+
 ## Menghubungkan bot WhatsApp (Fonnte)
 
 Bot WhatsApp jalan lewat [Fonnte](https://fonnte.com) (WA gateway, bukan API resmi Meta), berbasis webhook HTTP sama seperti Telegram.

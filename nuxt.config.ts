@@ -29,6 +29,7 @@ export default defineNuxtConfig({
     databaseUrl: process.env.TIDB_DATABASE_URL,
     telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
     telegramWebhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET,
+    telegramWebhookUrl: process.env.TELEGRAM_WEBHOOK_URL,
     openaiApiKey: process.env.OPENAI_API_KEY,
     openaiBaseUrl: process.env.OPENAI_BASE_URL,
     r2AccountId: process.env.R2_ACCOUNT_ID,
