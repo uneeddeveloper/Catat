@@ -46,7 +46,9 @@ curl -X POST "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook" \
 
 Lalu invite bot ke grup/chat yang diinginkan dan kirim `/start`.
 
-Isi juga `TELEGRAM_WEBHOOK_URL` di `.env` lokal dengan URL di atas. Saat `npm run dev` jalan, bot otomatis pindah ke long polling (yang otomatis menghapus webhook produksi selama Telegram tidak izinkan dua mode aktif sekaligus) — begitu dev server berhenti atau restart, webhook produksi dipasang balik otomatis, jadi bot tidak mati saat project lokal ditutup.
+Isi juga `TELEGRAM_WEBHOOK_URL` di `.env` lokal dengan URL di atas. Defaultnya, tiap `npm run dev` nyala otomatis menegaskan ulang webhook production tetap aktif — jadi bot tidak akan pernah mati gara-gara project lokal ditutup, sama sekali tidak bergantung pada momen dev server berhenti (yang tidak reliable, terutama di Windows).
+
+Kalau mau tes balasan bot langsung dari lokal, isi `TELEGRAM_DEV_POLLING=1` di `.env` — bot akan jalan pakai long polling selama itu (webhook production otomatis nonaktif sementara, karena Telegram cuma izinkan salah satu mode). Selesai testing, hapus/kosongkan lagi env var itu dan restart `npm run dev` — webhook production otomatis dipasang balik.
 
 ## Menghubungkan bot WhatsApp (Fonnte)
 

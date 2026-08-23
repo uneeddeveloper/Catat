@@ -30,6 +30,7 @@ export default defineNuxtConfig({
     telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
     telegramWebhookSecret: process.env.TELEGRAM_WEBHOOK_SECRET,
     telegramWebhookUrl: process.env.TELEGRAM_WEBHOOK_URL,
+    telegramDevPolling: process.env.TELEGRAM_DEV_POLLING,
     openaiApiKey: process.env.OPENAI_API_KEY,
     openaiBaseUrl: process.env.OPENAI_BASE_URL,
     r2AccountId: process.env.R2_ACCOUNT_ID,
