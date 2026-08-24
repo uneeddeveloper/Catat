@@ -6,6 +6,7 @@ const password = ref('')
 const error = ref('')
 const loading = ref(false)
 const showPassword = ref(false)
+const turnstileToken = ref('')
 
 async function submit() {
   error.value = ''
@@ -13,7 +14,7 @@ async function submit() {
   try {
     await $fetch('/api/admin/auth/login', {
       method: 'POST',
-      body: { email: email.value, password: password.value }
+      body: { email: email.value, password: password.value, turnstileToken: turnstileToken.value }
     })
     await refreshSession()
     await navigateTo('/')
@@ -76,6 +77,11 @@ async function submit() {
       </div>
     </label>
 
+    <NuxtTurnstile
+      v-model="turnstileToken"
+      class="mx-auto"
+    />
+
     <UAlert
       v-if="error"
       color="error"
@@ -85,7 +91,7 @@ async function submit() {
 
     <button
       type="submit"
-      :disabled="loading"
+      :disabled="loading || !turnstileToken"
       class="w-full rounded-full bg-linear-to-r from-primary-500 to-rose-500 text-white font-semibold tracking-wide py-3 text-sm shadow-lg shadow-primary-500/30 hover:brightness-105 active:scale-[0.99] transition disabled:opacity-60 disabled:pointer-events-none"
     >
       {{ loading ? 'Memproses…' : 'MASUK' }}

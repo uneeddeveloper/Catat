@@ -1,4 +1,4 @@
-import { and, eq, gte, lte, like, desc, inArray } from 'drizzle-orm'
+import { and, eq, gte, lte, desc, inArray } from 'drizzle-orm'
 import { useDb } from '../../../db/client'
 import { transactions, chats, categories, chatUsers, businesses, transactionItems } from '../../../db/schema'
 
@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
   if (query.type === 'expense' || query.type === 'income') conditions.push(eq(transactions.type, query.type))
   if (query.from) conditions.push(gte(transactions.expenseDate, new Date(String(query.from))))
   if (query.to) conditions.push(lte(transactions.expenseDate, new Date(String(query.to))))
-  if (query.search) conditions.push(like(transactions.description, `%${query.search}%`))
+
+  // description dienkripsi (bukan plaintext di DB), jadi tidak bisa di-LIKE di SQL -
+  // filter di JS setelah select (drizzle otomatis decrypt lewat customType di schema).
+  const search = query.search ? String(query.search).toLowerCase() : ''
 
   const rows = await db.select({
     id: transactions.id,
@@ -46,7 +49,11 @@ export default defineEventHandler(async (event) => {
     .orderBy(desc(transactions.createdAt))
     .limit(200)
 
-  const ids = rows.map(r => r.id)
+  const filteredRows = search
+    ? rows.filter(row => row.description?.toLowerCase().includes(search))
+    : rows
+
+  const ids = filteredRows.map(r => r.id)
   const itemRows = ids.length
     ? await db.select({
         transactionId: transactionItems.transactionId,
@@ -62,5 +69,5 @@ export default defineEventHandler(async (event) => {
     itemsByTransaction.set(item.transactionId, list)
   }
 
-  return rows.map(row => ({ ...row, items: itemsByTransaction.get(row.id) ?? [] }))
+  return filteredRows.map(row => ({ ...row, items: itemsByTransaction.get(row.id) ?? [] }))
 })

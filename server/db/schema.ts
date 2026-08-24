@@ -1,4 +1,6 @@
-import { mysqlTable, varchar, int, decimal, boolean, json, timestamp, mysqlEnum, index, unique } from 'drizzle-orm/mysql-core'
+import { mysqlTable, varchar, int, boolean, timestamp, mysqlEnum, index, unique } from 'drizzle-orm/mysql-core'
+import { encryptedText, encryptedJson } from './encryptedColumn'
+import type { TransactionExtraction } from '../llm/types'
 
 export const admins = mysqlTable('admins', {
   id: int('id').autoincrement().primaryKey(),
@@ -32,9 +34,9 @@ export const chatUsers = mysqlTable('chat_users', {
   id: int('id').autoincrement().primaryKey(),
   platform: mysqlEnum('platform', ['telegram', 'whatsapp']).notNull(),
   externalUserId: varchar('external_user_id', { length: 64 }).notNull(),
-  username: varchar('username', { length: 190 }),
-  firstName: varchar('first_name', { length: 190 }),
-  lastName: varchar('last_name', { length: 190 }),
+  username: encryptedText('username'),
+  firstName: encryptedText('first_name'),
+  lastName: encryptedText('last_name'),
   createdAt: timestamp('created_at').defaultNow().notNull()
 }, table => ({
   platformUserUnique: unique('chat_users_platform_external_unique').on(table.platform, table.externalUserId)
@@ -56,14 +58,14 @@ export const transactions = mysqlTable('transactions', {
   senderId: int('sender_id').notNull().references(() => chatUsers.id),
   categoryId: int('category_id').references(() => categories.id),
   type: mysqlEnum('type', ['expense', 'income']).default('expense').notNull(),
-  amount: decimal('amount', { precision: 14, scale: 2 }).notNull(),
+  amount: encryptedText('amount').notNull(),
   currency: varchar('currency', { length: 8 }).default('IDR').notNull(),
-  merchant: varchar('merchant', { length: 255 }),
-  description: varchar('description', { length: 500 }),
+  merchant: encryptedText('merchant'),
+  description: encryptedText('description'),
   expenseDate: timestamp('expense_date').notNull(),
-  receiptImageUrl: varchar('receipt_image_url', { length: 500 }),
+  receiptImageUrl: encryptedText('receipt_image_url'),
   source: mysqlEnum('source', ['text', 'photo']).notNull(),
-  rawLlmResponse: json('raw_llm_response'),
+  rawLlmResponse: encryptedJson<TransactionExtraction>()('raw_llm_response'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull()
 }, table => ({
@@ -86,8 +88,8 @@ export const aiUsageLogs = mysqlTable('ai_usage_logs', {
 export const transactionItems = mysqlTable('transaction_items', {
   id: int('id').autoincrement().primaryKey(),
   transactionId: int('transaction_id').notNull().references(() => transactions.id, { onDelete: 'cascade' }),
-  name: varchar('name', { length: 255 }).notNull(),
-  price: decimal('price', { precision: 14, scale: 2 }).notNull(),
+  name: encryptedText('name').notNull(),
+  price: encryptedText('price').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 }, table => ({
   transactionIdx: index('transaction_items_transaction_idx').on(table.transactionId)

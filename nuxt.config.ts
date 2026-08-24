@@ -3,7 +3,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui',
-    'nuxt-auth-utils'
+    'nuxt-auth-utils',
+    '@nuxtjs/turnstile'
   ],
 
   // Disabled: its floating launcher docks at the bottom of the viewport and
@@ -41,6 +42,10 @@ export default defineNuxtConfig({
     r2PublicUrl: process.env.R2_PUBLIC_URL,
     fonnteApiToken: process.env.FONNTE_API_TOKEN,
     fonnteWebhookSecret: process.env.FONNTE_WEBHOOK_SECRET,
+    dataEncryptionKey: process.env.DATA_ENCRYPTION_KEY,
+    turnstile: {
+      secretKey: '' // NUXT_TURNSTILE_SECRET_KEY
+    },
     session: {
       cookie: {
         // Dev server runs over plain HTTP (including LAN IP for mobile testing),
@@ -106,5 +111,9 @@ export default defineNuxtConfig({
       ],
       scan: true
     }
+  },
+
+  turnstile: {
+    siteKey: process.env.TURNSTILE_SITE_KEY || ''
   }
 })

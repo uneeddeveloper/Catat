@@ -3,10 +3,15 @@ import { useDb } from '../../../db/client'
 import { admins, businesses } from '../../../db/schema'
 
 export default defineEventHandler(async (event) => {
-  const { email, password } = await readBody<{ email: string, password: string }>(event)
+  const { email, password, turnstileToken } = await readBody<{ email: string, password: string, turnstileToken: string }>(event)
 
   if (!email || !password) {
     throw createError({ statusCode: 400, statusMessage: 'Email dan password wajib diisi' })
+  }
+
+  const { success } = await verifyTurnstileToken(turnstileToken, event)
+  if (!success) {
+    throw createError({ statusCode: 400, statusMessage: 'Verifikasi captcha gagal, coba lagi' })
   }
 
   const db = useDb()
