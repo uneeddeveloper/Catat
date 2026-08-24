@@ -49,6 +49,33 @@ export async function getCategories(businessId: number | null) {
     .where(businessId ? eq(categories.businessId, businessId) : isNull(categories.businessId))
 }
 
+const TO_EXPENSE_WORDS: [RegExp, string][] = [
+  [/\bpendapatan\b/gi, 'pengeluaran'],
+  [/\bpemasukan\b/gi, 'pengeluaran'],
+  [/\bpenghasilan\b/gi, 'pengeluaran'],
+  [/\bditerima\b/gi, 'dibayarkan'],
+  [/\bdari\b/gi, 'untuk']
+]
+
+const TO_INCOME_WORDS: [RegExp, string][] = [
+  [/\bpengeluaran\b/gi, 'pendapatan'],
+  [/\bdibayarkan\b/gi, 'diterima'],
+  [/\buntuk\b/gi, 'dari']
+]
+
+function matchCase(sample: string, replacement: string) {
+  const firstChar = sample.charAt(0)
+  if (sample === sample.toUpperCase()) return replacement.toUpperCase()
+  if (firstChar === firstChar.toUpperCase()) return replacement.charAt(0).toUpperCase() + replacement.slice(1)
+  return replacement
+}
+
+/** Ganti kata kunci pemasukan/pengeluaran di description saat jenis transaksi ditukar, mis. "Pendapatan dari layanan pickup" -> "Pengeluaran untuk layanan pickup". */
+export function swapDescriptionForType(description: string, newType: 'expense' | 'income') {
+  const pairs = newType === 'expense' ? TO_EXPENSE_WORDS : TO_INCOME_WORDS
+  return pairs.reduce((text, [pattern, replacement]) => text.replace(pattern, match => matchCase(match, replacement)), description)
+}
+
 export function formatRupiah(amount: number | string) {
   const value = typeof amount === 'string' ? Number(amount) : amount
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value)

@@ -1,4 +1,5 @@
 import { customType } from 'drizzle-orm/mysql-core'
+import { encrypt, decrypt } from '../utils/encryption'
 
 /**
  * Kolom text yang otomatis dienkripsi (AES-256-GCM) saat ditulis dan

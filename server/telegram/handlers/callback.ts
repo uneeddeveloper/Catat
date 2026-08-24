@@ -2,7 +2,7 @@ import type { Context } from 'grammy'
 import { eq } from 'drizzle-orm'
 import { useDb } from '../../db/client'
 import { transactions, categories, chatUsers, chats, businesses } from '../../db/schema'
-import { getCategories, buildTransactionSummaryText, buildSummaryKeyboard, buildCategoryKeyboard } from '../helpers'
+import { getCategories, buildTransactionSummaryText, buildSummaryKeyboard, buildCategoryKeyboard, swapDescriptionForType } from '../helpers'
 import type { TransactionExtraction } from '../../llm/types'
 import { handleReportPeriodCallback, handleReportFormatCallback } from './laporan'
 import type { ReportPeriod } from '../../reports/periodRange'
@@ -83,7 +83,8 @@ export async function handleCallback(ctx: Context) {
     const current = await loadTransactionView(transactionId)
     if (current) {
       const newType = current.type === 'income' ? 'expense' : 'income'
-      await db.update(transactions).set({ type: newType }).where(eq(transactions.id, transactionId))
+      const newDescription = current.description ? swapDescriptionForType(current.description, newType) : current.description
+      await db.update(transactions).set({ type: newType, description: newDescription }).where(eq(transactions.id, transactionId))
 
       const row = await loadTransactionView(transactionId)
       if (row) {

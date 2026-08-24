@@ -2,7 +2,7 @@ import type { Context } from 'grammy'
 import { InlineKeyboard } from 'grammy'
 import { upsertChat as upsertChatGeneric, upsertChatUser } from '../chat/helpers'
 
-export { getBusinessForChat, getCategories, formatRupiah, buildTransactionSummaryText } from '../chat/helpers'
+export { getBusinessForChat, getCategories, formatRupiah, buildTransactionSummaryText, swapDescriptionForType } from '../chat/helpers'
 
 export async function upsertChat(ctx: Context) {
   const chat = ctx.chat!

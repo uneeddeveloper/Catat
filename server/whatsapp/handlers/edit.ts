@@ -1,7 +1,7 @@
 import { desc, eq } from 'drizzle-orm'
 import { useDb } from '../../db/client'
 import { transactions, chatUsers, categories } from '../../db/schema'
-import { getCategories, getBusinessForChat, buildTransactionSummaryText } from '../../chat/helpers'
+import { getCategories, getBusinessForChat, buildTransactionSummaryText, swapDescriptionForType } from '../../chat/helpers'
 import { sendFonnteMessage } from '../fonnteClient'
 import type { TransactionExtraction } from '../../llm/types'
 import type { WaChat } from '../types'
@@ -35,8 +35,9 @@ export async function handleTukarJenis(target: string, chat: WaChat) {
   }
 
   const newType = latest.type === 'income' ? 'expense' : 'income'
+  const newDescription = latest.description ? swapDescriptionForType(latest.description, newType) : latest.description
   const db = useDb()
-  await db.update(transactions).set({ type: newType }).where(eq(transactions.id, latest.id))
+  await db.update(transactions).set({ type: newType, description: newDescription }).where(eq(transactions.id, latest.id))
 
   const [business, [senderRow], [categoryRow]] = await Promise.all([
     getBusinessForChat(chat),
@@ -53,7 +54,7 @@ export async function handleTukarJenis(target: string, chat: WaChat) {
     type: newType,
     currency: latest.currency,
     merchant: latest.merchant,
-    description: latest.description ?? '',
+    description: newDescription ?? '',
     category: categoryName,
     date: null,
     items: [],
