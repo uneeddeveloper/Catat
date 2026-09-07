@@ -15,6 +15,7 @@ export interface ReportRow {
   categoryName: string
   merchant: string | null
   description: string | null
+  sourceOfFunds: string | null
   senderName: string
   items: ReportItem[]
 }
@@ -47,6 +48,7 @@ export async function buildReportData(params: { businessId: number | null, from:
     categoryName: categories.name,
     merchant: transactions.merchant,
     description: transactions.description,
+    sourceOfFunds: transactions.sourceOfFunds,
     senderFirstName: chatUsers.firstName,
     senderUsername: chatUsers.username
   })
@@ -85,6 +87,7 @@ export async function buildReportData(params: { businessId: number | null, from:
     categoryName: r.categoryName ?? 'Lainnya',
     merchant: r.merchant,
     description: r.description,
+    sourceOfFunds: r.sourceOfFunds,
     senderName: r.senderFirstName ?? r.senderUsername ?? 'Seseorang',
     items: itemsByTransaction.get(r.id) ?? []
   }))

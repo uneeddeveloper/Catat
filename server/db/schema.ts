@@ -62,6 +62,7 @@ export const transactions = mysqlTable('transactions', {
   currency: varchar('currency', { length: 8 }).default('IDR').notNull(),
   merchant: encryptedText('merchant'),
   description: encryptedText('description'),
+  sourceOfFunds: encryptedText('source_of_funds'),
   expenseDate: timestamp('expense_date').notNull(),
   receiptImageUrl: encryptedText('receipt_image_url'),
   source: mysqlEnum('source', ['text', 'photo']).notNull(),

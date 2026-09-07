@@ -111,16 +111,17 @@ function buildTransactionsSheet(workbook: ExcelJS.Workbook, data: ReportData) {
     { width: 18 },
     { width: 22 },
     { width: 32 },
+    { width: 22 },
     { width: 20 }
   ]
 
-  sheet.mergeCells('A1:F1')
+  sheet.mergeCells('A1:G1')
   const title = sheet.getCell('A1')
   title.value = `Rincian Transaksi — ${data.scopeName}`
   title.font = { bold: true, size: 16, color: { argb: COLOR.title } }
   sheet.getRow(1).height = 26
 
-  sheet.mergeCells('A2:F2')
+  sheet.mergeCells('A2:G2')
   const subtitle = sheet.getCell('A2')
   subtitle.value = data.periodLabel
   subtitle.font = { italic: true, size: 11, color: { argb: COLOR.muted } }
@@ -155,7 +156,7 @@ function addTransactionSection(
 ) {
   let r = startRow
 
-  sheet.mergeCells(`A${r}:F${r}`)
+  sheet.mergeCells(`A${r}:G${r}`)
   const bar = sheet.getCell(`A${r}`)
   bar.value = `${section.label}  (${section.rows.length} transaksi)`
   bar.font = { bold: true, size: 12, color: { argb: COLOR.white } }
@@ -165,7 +166,7 @@ function addTransactionSection(
   r++
 
   const headerRow = sheet.getRow(r)
-  headerRow.values = ['Tanggal', 'Kategori', 'Nominal (Rp)', 'Merchant', 'Deskripsi', 'Dicatat oleh']
+  headerRow.values = ['Tanggal', 'Kategori', 'Nominal (Rp)', 'Merchant', 'Sumber Dana', 'Deskripsi', 'Dicatat oleh']
   styleHeaderRow(headerRow, section.accent, COLOR.white)
   r++
 
@@ -177,6 +178,7 @@ function addTransactionSection(
       row.categoryName,
       row.amount,
       row.merchant ?? '—',
+      row.sourceOfFunds ?? '—',
       row.description ?? '—',
       row.senderName
     ]
@@ -190,7 +192,7 @@ function addTransactionSection(
 
     for (const item of row.items) {
       const itemRow = sheet.getRow(r)
-      itemRow.values = [null, `      • ${item.name}`, item.price, null, null, null]
+      itemRow.values = [null, `      • ${item.name}`, item.price, null, null, null, null]
       itemRow.getCell(2).font = { italic: true, size: 10, color: { argb: COLOR.itemText } }
       itemRow.getCell(3).font = { italic: true, size: 10, color: { argb: COLOR.itemText } }
       itemRow.getCell(3).numFmt = '#,##0'
@@ -202,7 +204,7 @@ function addTransactionSection(
   }
 
   if (section.rows.length === 0) {
-    sheet.mergeCells(`A${r}:F${r}`)
+    sheet.mergeCells(`A${r}:G${r}`)
     const empty = sheet.getCell(`A${r}`)
     empty.value = 'Tidak ada transaksi pada periode ini.'
     empty.font = { italic: true, color: { argb: COLOR.muted } }
@@ -221,7 +223,7 @@ function addTransactionSection(
     cell.border = { top: { style: 'medium', color: { argb: section.accent } } }
     if (!cell.fill) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: section.accentBg } }
   })
-  for (let col = 1; col <= 6; col++) {
+  for (let col = 1; col <= 7; col++) {
     const cell = totalRow.getCell(col)
     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: section.accentBg } }
   }

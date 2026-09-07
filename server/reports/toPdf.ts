@@ -7,11 +7,12 @@ function truncate(text: string, max: number) {
 }
 
 const COLUMNS = [
-  { key: 'date', label: 'Tanggal', width: 85 },
-  { key: 'type', label: 'Jenis', width: 50 },
-  { key: 'category', label: 'Kategori', width: 75 },
-  { key: 'amount', label: 'Nominal', width: 90 },
-  { key: 'description', label: 'Deskripsi', width: 160 }
+  { key: 'date', label: 'Tanggal', width: 80 },
+  { key: 'type', label: 'Jenis', width: 45 },
+  { key: 'category', label: 'Kategori', width: 65 },
+  { key: 'amount', label: 'Nominal', width: 80 },
+  { key: 'sourceOfFunds', label: 'Sumber Dana', width: 75 },
+  { key: 'description', label: 'Deskripsi', width: 130 }
 ] as const
 
 export function buildReportPdf(data: ReportData): Promise<Buffer> {
@@ -80,7 +81,8 @@ export function buildReportPdf(data: ReportData): Promise<Buffer> {
         row.type === 'income' ? 'Masuk' : 'Keluar',
         truncate(row.categoryName, 16),
         formatRupiah(row.amount),
-        truncate(row.description ?? '', 40)
+        truncate(row.sourceOfFunds ?? '—', 18),
+        truncate(row.description ?? '', 32)
       ]
       doc.fillColor('#000').fontSize(9)
       values.forEach((val, i) => {

@@ -29,6 +29,7 @@ export async function handleText(ctx: WaContext, text: string) {
     currency: extraction.currency || 'IDR',
     merchant: extraction.merchant,
     description: extraction.description,
+    sourceOfFunds: extraction.sourceOfFunds,
     expenseDate: extraction.date ? new Date(extraction.date) : new Date(),
     source: 'text',
     rawLlmResponse: extraction

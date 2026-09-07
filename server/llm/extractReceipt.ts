@@ -14,7 +14,9 @@ export async function extractReceipt(imageUrl: string, categoryNames: string[]):
 
 Kalau fotonya adalah bukti transfer bank/e-wallet (m-Transfer, BI-FAST, mobile banking, dompet digital, dsb) alih-alih struk belanja: cari kata penanda arah transfer. Kalau ada "Ke"/"Kepada"/"Tujuan"/"Penerima" diikuti nama pihak lain, uang KELUAR dari rekening pengirim, set type: "expense" dan merchant diisi nama pihak yang menerima (bukan nama bank/aplikasinya). Kalau ada "Dari"/"Pengirim"/"Sumber Dana", uang MASUK, set type: "income" dan merchant diisi nama pihak yang mengirim. Kalau tidak ada penanda arah sama sekali, asumsikan type: "expense" (transfer keluar) karena itu kasus paling umum.
 
-Pilih category paling sesuai dari daftar yang diberikan. Jika ada beberapa nominal, pakai TOTAL akhir (bukan subtotal). Tulis description singkat dalam Bahasa Indonesia.`
+Pilih category paling sesuai dari daftar yang diberikan. Jika ada beberapa nominal, pakai TOTAL akhir (bukan subtotal). Tulis description singkat dalam Bahasa Indonesia.
+
+Field "sourceOfFunds" khusus untuk pengeluaran yang BUKAN bukti transfer: isi kalau struk/nota menyebut sumber dana internal secara eksplisit di luar label rekening bank itu sendiri (mis. dibayar pakai "kas toko", "uang pribadi"). Untuk bukti transfer bank/e-wallet, biarkan sourceOfFunds null karena label "Sumber Dana"/nomor rekening di struk itu sudah dipakai untuk menentukan arah transaksi di atas, bukan untuk field ini.`
       },
       {
         role: 'user',

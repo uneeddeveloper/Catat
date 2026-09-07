@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const admin = await requireAdmin(event)
 
   const id = Number(getRouterParam(event, 'id'))
-  const body = await readBody<{ amount?: number, categoryId?: number, description?: string, merchant?: string, type?: 'expense' | 'income' }>(event)
+  const body = await readBody<{ amount?: number, categoryId?: number, description?: string, merchant?: string, sourceOfFunds?: string, type?: 'expense' | 'income' }>(event)
 
   const db = useDb()
 
@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
     ...(body.categoryId !== undefined ? { categoryId: body.categoryId } : {}),
     ...(body.description !== undefined ? { description: body.description } : {}),
     ...(body.merchant !== undefined ? { merchant: body.merchant } : {}),
+    ...(body.sourceOfFunds !== undefined ? { sourceOfFunds: body.sourceOfFunds } : {}),
     ...(body.type !== undefined ? { type: body.type } : {})
   }).where(eq(transactions.id, id))
 

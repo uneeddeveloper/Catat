@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
     type: transactions.type,
     merchant: transactions.merchant,
     description: transactions.description,
+    sourceOfFunds: transactions.sourceOfFunds,
     expenseDate: transactions.expenseDate,
     receiptImageUrl: transactions.receiptImageUrl,
     source: transactions.source,

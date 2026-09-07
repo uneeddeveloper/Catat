@@ -46,6 +46,7 @@ export async function handlePhoto(ctx: Context) {
     currency: extraction.currency || 'IDR',
     merchant: extraction.merchant,
     description: extraction.description,
+    sourceOfFunds: extraction.sourceOfFunds,
     expenseDate: extraction.date ? new Date(extraction.date) : new Date(),
     receiptImageUrl: publicUrl,
     source: 'photo',

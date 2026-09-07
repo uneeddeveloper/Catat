@@ -90,6 +90,7 @@ export function buildTransactionSummaryText(extraction: TransactionExtraction, c
     `🏷️ ${categoryName}`,
     extraction.merchant ? `🏪 ${extraction.merchant}` : null,
     `📝 ${extraction.description}`,
+    extraction.sourceOfFunds ? `💳 Sumber dana: ${extraction.sourceOfFunds}` : null,
     extraction.items.length ? extraction.items.map(item => `   • ${item.name}: ${formatRupiah(item.price)}`).join('\n') : null,
     `👤 ${senderName}`
   ].filter(Boolean)

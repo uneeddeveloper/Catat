@@ -8,6 +8,7 @@ interface TransactionRow {
   type: 'expense' | 'income'
   merchant: string | null
   description: string | null
+  sourceOfFunds: string | null
   expenseDate: string
   receiptImageUrl: string | null
   source: 'text' | 'photo'
@@ -138,6 +139,12 @@ const typeOptions = [
           </div>
           <p class="text-sm text-muted">
             {{ row.description }}<span v-if="row.merchant"> · {{ row.merchant }}</span>
+          </p>
+          <p
+            v-if="row.sourceOfFunds"
+            class="text-xs text-muted"
+          >
+            💳 Sumber dana: {{ row.sourceOfFunds }}
           </p>
           <ul
             v-if="row.items.length"

@@ -39,6 +39,7 @@ export async function handlePhoto(ctx: WaContext, mediaUrl: string) {
     currency: extraction.currency || 'IDR',
     merchant: extraction.merchant,
     description: extraction.description,
+    sourceOfFunds: extraction.sourceOfFunds,
     expenseDate: extraction.date ? new Date(extraction.date) : new Date(),
     receiptImageUrl: publicUrl,
     source: 'photo',
