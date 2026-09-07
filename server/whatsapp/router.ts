@@ -58,7 +58,7 @@ export async function handleFonnteMessage(payload: FonntePayload) {
   const ctx: WaContext = { target, chat, user, senderName: payload.name || 'Seseorang' }
 
   if (payload.url) {
-    await handlePhoto(ctx, payload.url)
+    await handlePhoto(ctx, payload.url, payload.message)
     return
   }
 

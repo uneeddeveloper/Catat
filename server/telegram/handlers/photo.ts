@@ -27,7 +27,7 @@ export async function handlePhoto(ctx: Context) {
   const [chat, telegramUser] = await Promise.all([upsertChat(ctx), upsertTelegramUser(ctx)])
   const [business, categoryList] = await Promise.all([getBusinessForChat(chat), getCategories(chat.businessId)])
 
-  const extraction = await extractReceipt(publicUrl, categoryList.map(c => c.name))
+  const extraction = await extractReceipt(publicUrl, categoryList.map(c => c.name), ctx.message?.caption)
 
   if (!extraction.amount) {
     await ctx.reply('🤔 Aku belum bisa baca nominal totalnya dari struk ini. Coba foto ulang yang lebih jelas, atau ketik manual.')

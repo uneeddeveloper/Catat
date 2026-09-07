@@ -2,8 +2,16 @@ import { useOpenAi, EXPENSE_MODEL } from './openaiClient'
 import { transactionJsonSchema, type TransactionExtraction } from './types'
 import { logAiUsage } from './usageLog'
 
-export async function extractReceipt(imageUrl: string, categoryNames: string[]): Promise<TransactionExtraction> {
+export async function extractReceipt(imageUrl: string, categoryNames: string[], caption?: string | null): Promise<TransactionExtraction> {
   const openai = useOpenAi()
+
+  const userContent: Array<{ type: 'text', text: string } | { type: 'image_url', image_url: { url: string } }> = [
+    { type: 'text', text: 'Ekstrak data transaksi dari struk/nota ini.' },
+    { type: 'image_url', image_url: { url: imageUrl } }
+  ]
+  if (caption?.trim()) {
+    userContent.push({ type: 'text', text: `Pengirim menyertakan catatan bersama foto ini: "${caption.trim()}". Catatan ini eksplisit dari pengirim, jadi utamakan isinya untuk mengisi description dan sourceOfFunds (dan detail lain yang relevan) dibanding hanya menebak dari foto struknya saja.` })
+  }
 
   const response = await openai.chat.completions.create({
     model: EXPENSE_MODEL,
@@ -16,14 +24,11 @@ Kalau fotonya adalah bukti transfer bank/e-wallet (m-Transfer, BI-FAST, mobile b
 
 Pilih category paling sesuai dari daftar yang diberikan. Jika ada beberapa nominal, pakai TOTAL akhir (bukan subtotal). Tulis description singkat dalam Bahasa Indonesia.
 
-Field "sourceOfFunds" khusus untuk pengeluaran yang BUKAN bukti transfer: isi kalau struk/nota menyebut sumber dana internal secara eksplisit di luar label rekening bank itu sendiri (mis. dibayar pakai "kas toko", "uang pribadi"). Untuk bukti transfer bank/e-wallet, biarkan sourceOfFunds null karena label "Sumber Dana"/nomor rekening di struk itu sudah dipakai untuk menentukan arah transaksi di atas, bukan untuk field ini.`
+Field "sourceOfFunds": isi kalau ada info sumber dana internal secara eksplisit (mis. dibayar pakai "kas toko", "uang pribadi", "dari dek/Decky"), baik itu disebut di struk/nota ATAU di catatan tambahan yang menyertai foto (kalau ada). Untuk bukti transfer bank/e-wallet TANPA catatan tambahan, biarkan sourceOfFunds null karena label "Sumber Dana"/nomor rekening di struk itu dipakai untuk menentukan arah transaksi di atas, bukan berarti itu sumber dana internal si pencatat.`
       },
       {
         role: 'user',
-        content: [
-          { type: 'text', text: 'Ekstrak data transaksi dari struk/nota ini.' },
-          { type: 'image_url', image_url: { url: imageUrl } }
-        ]
+        content: userContent
       }
     ],
     response_format: { type: 'json_schema', json_schema: transactionJsonSchema(categoryNames) }

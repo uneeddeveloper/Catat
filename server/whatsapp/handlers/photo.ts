@@ -9,7 +9,7 @@ import type { WaContext } from '../types'
 
 const FOOTER = 'Balas "ganti <kategori>" buat ganti kategori, "tukar" buat tukar jenis pemasukan/pengeluaran, atau "hapus" buat hapus transaksi ini.'
 
-export async function handlePhoto(ctx: WaContext, mediaUrl: string) {
+export async function handlePhoto(ctx: WaContext, mediaUrl: string, caption?: string | null) {
   const config = useRuntimeConfig()
   const fileResponse = await fetch(mediaUrl, { headers: { Authorization: config.fonnteApiToken } })
   const rawBuffer = Buffer.from(await fileResponse.arrayBuffer())
@@ -20,7 +20,7 @@ export async function handlePhoto(ctx: WaContext, mediaUrl: string) {
 
   const [business, categoryList] = await Promise.all([getBusinessForChat(ctx.chat), getCategories(ctx.chat.businessId)])
 
-  const extraction = await extractReceipt(publicUrl, categoryList.map(c => c.name))
+  const extraction = await extractReceipt(publicUrl, categoryList.map(c => c.name), caption)
 
   if (!extraction.amount) {
     await sendFonnteMessage({ target: ctx.target, message: '🤔 Aku belum bisa baca nominal totalnya dari struk ini. Coba foto ulang yang lebih jelas, atau ketik manual.' })
