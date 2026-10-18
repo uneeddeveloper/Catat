@@ -16,12 +16,33 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      title: 'TxStream — Pencatat Transaksi Keuangan Otomatis',
+      htmlAttrs: { lang: 'id' },
+      meta: [
+        { name: 'description', content: 'Catat pemasukan dan pengeluaran usahamu otomatis lewat chat WhatsApp/Telegram atau foto struk. Kelola banyak usaha dan lihat laporannya real-time.' },
+        { name: 'theme-color', content: '#f97316' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'TxStream' },
+        { property: 'og:title', content: 'TxStream — Pencatat Transaksi Keuangan Otomatis' },
+        { property: 'og:description', content: 'Catat pemasukan dan pengeluaran usahamu otomatis lewat chat WhatsApp/Telegram atau foto struk.' },
+        { property: 'og:image', content: 'https://www.txstream.web.id/logo.png' },
+        { property: 'og:url', content: 'https://www.txstream.web.id/' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'TxStream — Pencatat Transaksi Keuangan Otomatis' },
+        { name: 'twitter:description', content: 'Catat pemasukan dan pengeluaran usahamu otomatis lewat chat WhatsApp/Telegram atau foto struk.' },
+        { name: 'twitter:image', content: 'https://www.txstream.web.id/logo.png' }
+      ],
       link: [
         { rel: 'icon', type: 'image/png', href: '/logo.png' },
+        { rel: 'manifest', href: '/manifest.webmanifest' },
+        { rel: 'canonical', href: 'https://www.txstream.web.id/' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Lilita+One&display=swap' }
-      ]
+      ],
+      // Endpoint yang Vercel sediakan otomatis kalau Web Analytics diaktifkan di project
+      // settings (Vercel dashboard > Analytics). 404 tanpa efek kalau belum diaktifkan/di lokal.
+      script: process.env.NODE_ENV === 'production' ? [{ src: '/_vercel/insights/script.js', defer: true }] : []
     }
   },
 
