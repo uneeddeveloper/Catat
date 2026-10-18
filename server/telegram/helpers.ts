@@ -2,7 +2,7 @@ import type { Context } from 'grammy'
 import { InlineKeyboard } from 'grammy'
 import { upsertChat as upsertChatGeneric, upsertChatUser } from '../chat/helpers'
 
-export { getBusinessForChat, getCategories, formatRupiah, buildTransactionSummaryText, swapDescriptionForType } from '../chat/helpers'
+export { getBusinessForChat, getCategories, formatRupiah, buildTransactionSummaryText, swapDescriptionForType, parseAmountInput } from '../chat/helpers'
 
 export async function upsertChat(ctx: Context) {
   const chat = ctx.chat!
@@ -27,6 +27,9 @@ export function buildSummaryKeyboard(transactionId: number) {
   return new InlineKeyboard()
     .text('✏️ Ganti kategori', `catmenu:${transactionId}`)
     .text('🔄 Tukar jenis', `swap:${transactionId}`)
+    .row()
+    .text('💰 Ubah nominal', `editamt:${transactionId}`)
+    .text('📝 Ubah keterangan', `editdesc:${transactionId}`)
     .row()
     .text('🗑️ Hapus', `del:${transactionId}`)
 }

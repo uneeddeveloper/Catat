@@ -3,10 +3,12 @@ import { useDb } from '../../db/client'
 import { transactions, transactionItems } from '../../db/schema'
 import { parseExpenseText } from '../../llm/parseExpenseText'
 import { upsertChat, upsertTelegramUser, getBusinessForChat, getCategories, buildTransactionSummaryText, buildSummaryKeyboard } from '../helpers'
+import { handleEditReply } from './edit'
 
 export async function handleText(ctx: Context) {
   const text = ctx.message?.text
   if (!text || text.startsWith('/')) return
+  if (await handleEditReply(ctx)) return
 
   const [chat, telegramUser] = await Promise.all([upsertChat(ctx), upsertTelegramUser(ctx)])
   const [business, categoryList] = await Promise.all([getBusinessForChat(chat), getCategories(chat.businessId)])

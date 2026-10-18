@@ -20,7 +20,11 @@ const SECTIONS: Record<string, string> = {
     '',
     'Atau kirim *foto struk/nota* — bot baca nominal & kategorinya otomatis.',
     '',
-    'Setelah tercatat, balas "ganti <kategori>" buat ganti kategori, atau "hapus" buat hapus transaksi terakhir.',
+    'Setelah tercatat, kalau ada yang salah balas:',
+    '• "nominal 50rb" — ubah nominal transaksi terakhir',
+    '• "ket beli bensin" — ubah keterangan transaksi terakhir',
+    '• "ganti <kategori>" — ganti kategori',
+    '• "hapus" — hapus transaksi terakhir',
     '',
     '💬 *Personal vs grup*',
     'Di chat pribadi, catatan jadi pengeluaran personal kamu sendiri. Di dalam grup, catatan otomatis kegolong ke usaha khusus grup itu (dibuat otomatis begitu grup mulai kirim transaksi) dan bisa dilihat semua anggota grup.'
@@ -46,6 +50,8 @@ const SECTIONS: Record<string, string> = {
     'laporan <periode> [format] — unduh laporan, mis. "laporan bulan pdf"',
     'hapus — hapus transaksi terakhir',
     'ganti <kategori> — ganti kategori transaksi terakhir',
+    'nominal <angka> — ubah nominal transaksi terakhir, mis. "nominal 50rb"',
+    'ket <teks> — ubah keterangan transaksi terakhir',
     'panduan — buka menu bantuan ini lagi'
   ].join('\n')
 }

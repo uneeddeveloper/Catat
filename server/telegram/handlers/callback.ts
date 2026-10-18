@@ -7,10 +7,12 @@ import type { TransactionExtraction } from '../../llm/types'
 import { handleReportPeriodCallback, handleReportFormatCallback } from './laporan'
 import type { ReportPeriod } from '../../reports/periodRange'
 import { handlePanduanCallback } from './panduan'
+import { sendEditPrompt } from './edit'
 
-async function loadTransactionView(transactionId: number) {
+export async function loadTransactionView(transactionId: number) {
   const db = useDb()
   const [row] = await db.select({
+    chatId: transactions.chatId,
     amount: transactions.amount,
     currency: transactions.currency,
     merchant: transactions.merchant,
@@ -34,7 +36,7 @@ async function loadTransactionView(transactionId: number) {
   return row
 }
 
-function toExtraction(row: NonNullable<Awaited<ReturnType<typeof loadTransactionView>>>): TransactionExtraction {
+export function toExtraction(row: NonNullable<Awaited<ReturnType<typeof loadTransactionView>>>): TransactionExtraction {
   return {
     amount: Number(row.amount),
     type: row.type,
@@ -97,6 +99,13 @@ export async function handleCallback(ctx: Context) {
       }
     }
     await ctx.answerCallbackQuery('Jenis transaksi ditukar')
+    return
+  }
+
+  if (data.startsWith('editamt:') || data.startsWith('editdesc:')) {
+    const [kind, transactionIdRaw] = data.split(':')
+    await sendEditPrompt(ctx, kind === 'editamt' ? 'amount' : 'description', Number(transactionIdRaw))
+    await ctx.answerCallbackQuery()
     return
   }
 

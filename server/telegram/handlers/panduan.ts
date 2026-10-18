@@ -27,7 +27,7 @@ const SECTIONS: Record<Section, string> = {
     '',
     'Atau kirim *foto struk/nota* — bot baca nominal & kategorinya otomatis.',
     '',
-    'Setelah tercatat, ada tombol untuk ganti kategori atau hapus kalau salah.',
+    'Setelah tercatat, ada tombol untuk ubah nominal, ubah keterangan, ganti kategori, atau hapus kalau salah.',
     '',
     '💬 *Personal vs grup*',
     'Di chat pribadi, catatan jadi pengeluaran personal kamu sendiri. Di dalam grup yang sudah didaftarkan lewat /usaha, catatan masuk ke usaha itu dan bisa dilihat semua anggota grup.'

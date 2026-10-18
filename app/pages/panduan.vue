@@ -9,7 +9,9 @@ const waCommands = [
   { cmd: 'rekap', desc: 'Ringkasan pemasukan & pengeluaran bulan ini' },
   { cmd: 'laporan <periode> [format]', desc: 'Unduh laporan, mis. "laporan bulan pdf"' },
   { cmd: 'hapus', desc: 'Hapus transaksi terakhir di chat ini' },
-  { cmd: 'ganti <kategori>', desc: 'Ganti kategori transaksi terakhir' }
+  { cmd: 'ganti <kategori>', desc: 'Ganti kategori transaksi terakhir' },
+  { cmd: 'nominal <angka>', desc: 'Ubah nominal transaksi terakhir, mis. "nominal 50rb"' },
+  { cmd: 'ket <teks>', desc: 'Ubah keterangan transaksi terakhir' }
 ]
 
 const tgCommands = [
@@ -107,7 +109,7 @@ const tgCommands = [
           </div>
 
           <p class="text-muted">
-            Tidak ada tombol interaktif seperti Telegram — balas <code>ganti &lt;kategori&gt;</code> atau <code>hapus</code> untuk ubah transaksi terakhir di chat itu.
+            Tidak ada tombol interaktif seperti Telegram — balas <code>nominal &lt;angka&gt;</code>, <code>ket &lt;teks&gt;</code>, <code>ganti &lt;kategori&gt;</code>, atau <code>hapus</code> untuk ubah transaksi terakhir di chat itu.
           </p>
         </div>
       </UCard>

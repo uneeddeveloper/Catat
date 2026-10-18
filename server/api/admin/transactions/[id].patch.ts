@@ -6,7 +6,11 @@ export default defineEventHandler(async (event) => {
   const admin = await requireAdmin(event)
 
   const id = Number(getRouterParam(event, 'id'))
-  const body = await readBody<{ amount?: number, categoryId?: number, description?: string, merchant?: string, sourceOfFunds?: string, type?: 'expense' | 'income' }>(event)
+  const body = await readBody<{ amount?: number, categoryId?: number, description?: string, merchant?: string | null, sourceOfFunds?: string | null, type?: 'expense' | 'income' }>(event)
+
+  if (body.amount !== undefined && !(Number(body.amount) > 0)) {
+    throw createError({ statusCode: 400, statusMessage: 'Nominal harus lebih dari 0' })
+  }
 
   const db = useDb()
 

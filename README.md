@@ -64,7 +64,7 @@ Bot WhatsApp jalan lewat [Fonnte](https://fonnte.com) (WA gateway, bukan API res
 3. Pastikan opsi **auto read** di pengaturan device dinyalakan — kalau mati, webhook tidak akan terpanggil.
 4. Simpan nomor WA bot sebagai kontak, lalu invite ke grup usaha seperti kontak biasa. Di dalam grup, ketik `usaha <nama usaha>` untuk mendaftarkannya.
 
-Fonnte tidak punya tombol interaktif seperti Telegram, jadi ganti kategori/hapus transaksi dilakukan lewat balasan teks (`ganti <kategori>`, `hapus`) yang merujuk ke transaksi terakhir di chat itu. Ketik `panduan` ke bot untuk daftar perintah lengkap.
+Fonnte tidak punya tombol interaktif seperti Telegram, jadi ubah nominal/keterangan, ganti kategori, dan hapus transaksi dilakukan lewat balasan teks (`nominal <angka>`, `ket <teks>`, `ganti <kategori>`, `hapus`) yang merujuk ke transaksi terakhir di chat itu. Ketik `panduan` ke bot untuk daftar perintah lengkap.
 
 Karena Fonnte butuh webhook publik (tidak ada mode polling untuk dev lokal), testing paling gampang dilakukan setelah deploy — atau pakai tunnel (ngrok/cloudflared) kalau mau test dari localhost.
 

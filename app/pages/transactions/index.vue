@@ -50,6 +50,44 @@ async function updateCategory(transactionId: number, newCategoryId: number) {
 
 const { $swal } = useNuxtApp()
 
+const editOpen = ref(false)
+const editSaving = ref(false)
+const editForm = reactive({ id: 0, amount: 0, description: '', merchant: '', sourceOfFunds: '' })
+
+function openEdit(row: TransactionRow) {
+  Object.assign(editForm, {
+    id: row.id,
+    amount: Number(row.amount),
+    description: row.description ?? '',
+    merchant: row.merchant ?? '',
+    sourceOfFunds: row.sourceOfFunds ?? ''
+  })
+  editOpen.value = true
+}
+
+async function saveEdit() {
+  if (!editForm.amount || editForm.amount <= 0) {
+    await $swal.fire({ title: 'Nominal tidak valid', text: 'Nominal harus lebih dari 0.', icon: 'error' })
+    return
+  }
+  editSaving.value = true
+  try {
+    await $fetch(`/api/admin/transactions/${editForm.id}`, {
+      method: 'PATCH',
+      body: {
+        amount: editForm.amount,
+        description: editForm.description.trim(),
+        merchant: editForm.merchant.trim() || null,
+        sourceOfFunds: editForm.sourceOfFunds.trim() || null
+      }
+    })
+    editOpen.value = false
+    await refresh()
+  } finally {
+    editSaving.value = false
+  }
+}
+
 async function removeTransaction(transactionId: number) {
   const result = await $swal.fire({
     title: 'Hapus transaksi?',
@@ -185,6 +223,13 @@ const typeOptions = [
             @update:model-value="(val: number) => updateCategory(row.id, val)"
           />
           <UButton
+            icon="i-lucide-pencil"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            @click="openEdit(row)"
+          />
+          <UButton
             icon="i-lucide-trash-2"
             color="error"
             variant="ghost"
@@ -201,5 +246,70 @@ const typeOptions = [
         Belum ada transaksi yang cocok dengan filter.
       </p>
     </div>
+
+    <UModal
+      v-model:open="editOpen"
+      title="Edit transaksi"
+    >
+      <template #body>
+        <form
+          id="edit-transaction-form"
+          class="flex flex-col gap-4"
+          @submit.prevent="saveEdit"
+        >
+          <UFormField
+            label="Nominal (Rp)"
+            required
+          >
+            <UInputNumber
+              v-model="editForm.amount"
+              :min="1"
+              :format-options="{ style: 'decimal', maximumFractionDigits: 0 }"
+              locale="id-ID"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField label="Keterangan">
+            <UTextarea
+              v-model="editForm.description"
+              :rows="2"
+              autoresize
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField label="Merchant / toko">
+            <UInput
+              v-model="editForm.merchant"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField label="Sumber dana">
+            <UInput
+              v-model="editForm.sourceOfFunds"
+              placeholder="mis. BCA, Cash, GoPay"
+              class="w-full"
+            />
+          </UFormField>
+        </form>
+      </template>
+      <template #footer>
+        <div class="flex justify-end gap-2 w-full">
+          <UButton
+            color="neutral"
+            variant="ghost"
+            @click="editOpen = false"
+          >
+            Batal
+          </UButton>
+          <UButton
+            type="submit"
+            form="edit-transaction-form"
+            :loading="editSaving"
+          >
+            Simpan
+          </UButton>
+        </div>
+      </template>
+    </UModal>
   </NuxtLayout>
 </template>

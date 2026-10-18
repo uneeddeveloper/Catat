@@ -76,6 +76,22 @@ export function swapDescriptionForType(description: string, newType: 'expense' |
   return pairs.reduce((text, [pattern, replacement]) => text.replace(pattern, match => matchCase(match, replacement)), description)
 }
 
+/** Parse nominal yang diketik user saat edit, mis. "50000", "50.000", "Rp 50.000", "50rb", "1,5jt". Return null kalau tidak valid. */
+export function parseAmountInput(input: string): number | null {
+  const match = input.trim().toLowerCase().replace(/^rp\.?\s*/, '').match(/^([\d.,]+)\s*(rb|ribu|k|jt|juta)?$/)
+  if (!match) return null
+
+  const [, numberPart, suffix] = match
+  const multiplier = suffix === 'jt' || suffix === 'juta' ? 1_000_000 : suffix ? 1_000 : 1
+  // Dengan satuan (rb/jt), koma/titik dianggap desimal ("1,5jt"); tanpa satuan, dianggap pemisah ribuan ("50.000")
+  const normalized = suffix
+    ? numberPart!.replace(',', '.')
+    : numberPart!.replace(/[.,]/g, '')
+
+  const value = Math.round(Number(normalized) * multiplier)
+  return Number.isFinite(value) && value > 0 ? value : null
+}
+
 export function formatRupiah(amount: number | string) {
   const value = typeof amount === 'string' ? Number(amount) : amount
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value)
